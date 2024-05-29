@@ -1,0 +1,99 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Values.exporter.name}}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "metoro.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.exporter.replicas }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: exporter
+      {{- include "metoro.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.exporter.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        app.kubernetes.io/name: exporter
+        tags.datadoghq.com/env: prod
+        tags.datadoghq.com/service: exporter
+        tags.datadoghq.com/version: {{ .Chart.AppVersion }}
+        admission.datadoghq.com/enabled: "true"
+        {{- include "metoro.selectorLabels" . | nindent 8 }}
+    spec:
+      securityContext:
+        {{- toYaml .Values.exporter.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.exporter.securityContext | nindent 12 }}
+          image: "{{ .Values.exporter.image.repository }}:{{ .Values.exporter.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.exporter.image.pullPolicy }}
+          env:
+            - name: VERSION
+              value: {{ .Chart.AppVersion }}
+            - name: ENVIRONMENT
+              value: {{ .Values.environment }}
+            - name: HOST_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+            - name: METORO_OTLP_URL
+              value: {{ .Values.exporter.otlpUrl }}
+            - name: METORO_AUTH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.exporterSecret.name }}
+                  key: AUTH_TOKEN
+            - name: COROOT_CLICKHOUSE_URL
+              value: {{ .Values.exporter.clickhouseUrl }}
+            - name: COROOT_CLICKHOUSE_USER
+              value: {{ .Values.exporter.clickhouseUser }}
+            - name: COROOT_CLICKHOUSE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name:  coroot-clickhouse
+                  key: admin-password
+            - name: COROOT_CLICKHOUSE_DATABASE
+              value: {{ .Values.exporter.clickhouseDatabase }}
+            - name: COROOT_PROMETHEUS_URL
+              value: {{ .Values.exporter.prometheusUrl }}
+            - name: GIN_MODE
+              value: release
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: {{ .Values.exporter.configMap.name }}
+              mountPath: /etc/exporter
+              readOnly: true
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app.kubernetes.io/name
+                      operator: In
+                      values:
+                        - exporter
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: {{ .Values.exporter.configMap.name }}
+          configMap:
+            name: {{ .Values.exporter.configMap.name }}
+            defaultMode: 420

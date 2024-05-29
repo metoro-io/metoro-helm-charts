@@ -1,0 +1,8 @@
+apiVersion: v2
+name: metoro-exporter
+description: A helm chart for the Metoro Exporter
+
+type: application
+
+version: 0.59.0
+appVersion: v0.59.0
