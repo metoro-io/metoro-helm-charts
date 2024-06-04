@@ -10,6 +10,7 @@ exporter:
   clickhouseUser: "change_me"
   prometheusUrl: "http://change_me:9090"
   image:
+    tag: "latest"
     repository: index.docker.io/metoro/metoro-exporter
     pullPolicy: "Always"
   # Placeholder configmap
