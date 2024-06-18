@@ -19,6 +19,12 @@ exporter:
     values:
       config.yml: |-
         Some Config Key
+  serviceAccount:
+    name: "metoro-exporter"
+  clusterRole:
+    name: "metoro-exporter-cluster-role"
+  clusterRoleBinding:
+    name: "metoro-exporter-cluster-role-binding"
 
 exporterSecret:
   name: "exporter-secret"

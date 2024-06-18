@@ -21,6 +21,7 @@ spec:
         app.kubernetes.io/name: exporter
         {{- include "metoro.selectorLabels" . | nindent 8 }}
     spec:
+      serviceAccountName: {{ .Values.exporter.serviceAccount.name }}
       securityContext:
         {{- toYaml .Values.exporter.podSecurityContext | nindent 8 }}
       containers:
