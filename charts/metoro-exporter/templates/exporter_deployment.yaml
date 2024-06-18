@@ -21,6 +21,7 @@ spec:
         app.kubernetes.io/name: exporter
         {{- include "metoro.selectorLabels" . | nindent 8 }}
     spec:
+      serviceAccountName: {{ .Values.exporter.serviceAccount.name }}
       securityContext:
         {{- toYaml .Values.exporter.podSecurityContext | nindent 8 }}
       containers:
@@ -40,6 +41,8 @@ spec:
                   fieldPath: status.hostIP
             - name: METORO_OTLP_URL
               value: {{ .Values.exporter.otlpUrl }}
+            - name: METORO_METADATA_INGESTER_URL
+              value: {{ .Values.exporter.metadataUrl }}
             - name: METORO_AUTH_TOKEN
               valueFrom:
                 secretKeyRef:
