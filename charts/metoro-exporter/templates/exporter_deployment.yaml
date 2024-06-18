@@ -42,7 +42,7 @@ spec:
             - name: METORO_OTLP_URL
               value: {{ .Values.exporter.otlpUrl }}
             - name: METORO_METADATA_INGESTER_URL
-              value: = {{ .Values.exporter.metadataUrl }}
+              value: {{ .Values.exporter.metadataUrl }}
             - name: METORO_AUTH_TOKEN
               valueFrom:
                 secretKeyRef:
