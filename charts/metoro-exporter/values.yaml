@@ -5,6 +5,7 @@ exporter:
   name: "metoro-exporter"
   replicas: 2
   otlpUrl: "http://change_me:4317"
+  metadataUrl: "http://change_me:4317"
   clickhouseUrl: "change_me:9000"
   clickhouseDatabase: "change_me"
   clickhouseUser: "change_me"
