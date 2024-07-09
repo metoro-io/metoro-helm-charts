@@ -41,6 +41,8 @@ spec:
                   fieldPath: status.hostIP
             - name: METORO_OTLP_URL
               value: {{ .Values.exporter.otlpUrl }}
+            - name: METORO_API_SERVER_URL
+              value: {{ .Values.exporter.apiServerUrl }}
             - name: METORO_METADATA_INGESTER_URL
               value: {{ .Values.exporter.metadataUrl }}
             - name: METORO_AUTH_TOKEN
