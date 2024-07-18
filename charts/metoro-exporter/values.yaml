@@ -11,6 +11,7 @@ exporter:
   clickhouseDatabase: "change_me"
   clickhouseUser: "change_me"
   prometheusUrl: "http://change_me:9090"
+  shouldDropMetoroData: true
   image:
     tag: "latest"
     repository: index.docker.io/metoro/metoro-exporter

@@ -65,6 +65,10 @@ spec:
               value: {{ .Values.exporter.prometheusUrl }}
             - name: GIN_MODE
               value: release
+            {{ if not .Values.exporter.shouldDropMetoroData }}
+            - name: SHOULD_DROP_METORO_DATA
+              value: "false"
+            {{ end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
