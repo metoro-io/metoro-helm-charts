@@ -29,6 +29,27 @@ exporter:
   clusterRoleBinding:
     name: "metoro-exporter-cluster-role-binding"
 
+instrumentationWebhook:
+  name: "metoro-instrumentation-webhook"
+  replicas: 2
+  image:
+    tag: "latest"
+    repository: index.docker.io/metoro/metoro-instrumentation-webhook
+    pullPolicy: "Always"
+  service:
+    name: "metoro-instrumentation-webhook"
+    port: 80
+    targetPort: 8080
+    type: "ClusterIP"
+  resources:
+    limits:
+      cpu: "100m"
+      memory: "128Mi"
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+
+
 exporterSecret:
   name: "exporter-secret"
   bearerToken: "CHANGE_ME"

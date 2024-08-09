@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.instrumentationWebhook.service.name }}
+  labels:
+    {{- include "metoro.selectorLabels" . | nindent 4 }}
+spec:
+  type: {{ .Values.instrumentationWebhook.service.type }}
+  ports:
+    - port: {{ .Values.instrumentationWebhook.service.port }}
+      targetPort: {{ .Values.instrumentationWebhook.service.targetPort }}
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/component: metoro-instrumentation-webhook
+---

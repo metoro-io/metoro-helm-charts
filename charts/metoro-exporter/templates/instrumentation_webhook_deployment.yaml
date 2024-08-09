@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Values.instrumentationWebhook.name}}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "metoro.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.instrumentationWebhook.replicas }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: metoro-instrumentation-webhook
+      {{- include "metoro.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.instrumentationWebhook.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        app.kubernetes.io/name: metoro-instrumentation-webhook
+        {{- include "metoro.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ .Values.instrumentationWebhook.name }}
+          image: "{{ .Values.instrumentationWebhook.image.repository }}:{{ .Values.instrumentationWebhook.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.instrumentationWebhook.image.pullPolicy }}
+          env:
+            - name: VERSION
+              value: {{ .Chart.AppVersion }}
+            - name: ENVIRONMENT
+              value: {{ .Values.environment }}
+            - name: GIN_MODE
+              value: release
+          resources:
+            {{- toYaml .Values.instrumentationWebhook.resources | nindent 12 }}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchExpressions:
+                    - key: app.kubernetes.io/name
+                      operator: In
+                      values:
+                        - metoro-instrumentation-webhook
