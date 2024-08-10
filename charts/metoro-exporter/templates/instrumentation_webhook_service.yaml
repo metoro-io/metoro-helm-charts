@@ -12,5 +12,5 @@ spec:
       protocol: TCP
       name: http
   selector:
-    app.kubernetes.io/component: metoro-instrumentation-webhook
+    app.kubernetes.io/name: metoro-instrumentation-webhook
 ---

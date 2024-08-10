@@ -1,0 +1,51 @@
+{{- if and (.Values.instrumentationWebhook.mutatingWebhookConfiguration) (not .Values.instrumentationWebhook.mutatingWebhookConfiguration.certManager.enabled) }}
+{{- $cert := fromYaml (include "metoro.WebhookCert" .) }}
+{{- $caCertEnc := $cert.ca }}
+{{- $certCrtEnc := $cert.crt }}
+{{- $certKeyEnc := $cert.key }}
+apiVersion: v1
+kind: Secret
+type: kubernetes.io/tls
+metadata:
+  annotations:
+    "helm.sh/hook": "pre-install,pre-upgrade"
+    "helm.sh/hook-delete-policy": "before-hook-creation"
+  labels:
+    {{- include "metoro.selectorLabels" . | nindent 4 }}
+  name: {{ .Values.instrumentationWebhook.secretName }}
+  namespace: {{ .Release.Namespace }}
+data:
+  tls.crt: {{ $certCrtEnc }}
+  tls.key: {{ $certKeyEnc }}
+  ca.crt: {{ $caCertEnc }}
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: {{ .Values.instrumentationWebhook.mutatingWebhookConfiguration.name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "metoro.labels" . | nindent 4 }}
+  annotations:
+    cert-manager.io/inject-ca-from: {{ include "metoro.webhookCertAnnotation" . }}
+webhooks:
+    - name: {{ .Values.instrumentationWebhook.mutatingWebhookConfiguration.name }}
+      admissionReviewVersions: ["v1"]
+      sideEffects: None
+      clientConfig:
+        caBundle: {{ $caCertEnc }}
+        service:
+          name: {{ .Values.instrumentationWebhook.service.name }}
+          namespace: {{ .Release.Namespace }}
+          path: "/api/v1/mutate"
+          port: {{ .Values.instrumentationWebhook.service.port }}
+      failurePolicy: Fail
+      rules:
+        - operations: ["CREATE", "UPDATE"]
+          apiGroups: ["apps"]
+          apiVersions: ["v1"]
+          resources: ["deployments", "replicasets", "statefulsets", "daemonsets"]
+          scope: "*"
+      timeoutSeconds: 5
+
+  {{- end }}
