@@ -2,8 +2,8 @@
 apiVersion: opentelemetry.io/v1alpha1
 kind: Instrumentation
 metadata:
-  namespace: python-microservices
-  name: demo-instrumentation
+  namespace: metoro
+  name: metoro-instrumentation
 spec:
   exporter:
     endpoint: http://metoro-otel-collector.metoro.svc.cluster.local:4317
