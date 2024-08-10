@@ -39,7 +39,7 @@ webhooks:
           namespace: {{ .Release.Namespace }}
           path: "/api/v1/mutate"
           port: {{ .Values.instrumentationWebhook.service.port }}
-      failurePolicy: Fail
+      failurePolicy: Ignore
       rules:
         - operations: ["CREATE", "UPDATE"]
           apiGroups: ["apps"]
