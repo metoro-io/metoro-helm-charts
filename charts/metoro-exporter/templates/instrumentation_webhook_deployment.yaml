@@ -10,7 +10,6 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/name: metoro-instrumentation-webhook
-      {{- include "metoro.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.instrumentationWebhook.podAnnotations }}
@@ -19,12 +18,19 @@ spec:
       {{- end }}
       labels:
         app.kubernetes.io/name: metoro-instrumentation-webhook
-        {{- include "metoro.selectorLabels" . | nindent 8 }}
     spec:
+      volumes:
+        - name: webhook-cert
+          secret:
+            secretName: {{ .Values.instrumentationWebhook.secretName }}
       containers:
         - name: {{ .Values.instrumentationWebhook.name }}
           image: "{{ .Values.instrumentationWebhook.image.repository }}:{{ .Values.instrumentationWebhook.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.instrumentationWebhook.image.pullPolicy }}
+          volumeMounts:
+            - mountPath: /etc/webhook/certs
+              name: webhook-cert
+              readOnly: true
           env:
             - name: VERSION
               value: {{ .Chart.AppVersion }}

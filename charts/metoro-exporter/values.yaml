@@ -30,6 +30,7 @@ exporter:
     name: "metoro-exporter-cluster-role-binding"
 
 instrumentationWebhook:
+  secretName: "metoro-instrumentation-webhook-secret"
   name: "metoro-instrumentation-webhook"
   replicas: 2
   image:
@@ -41,6 +42,14 @@ instrumentationWebhook:
     port: 80
     targetPort: 8080
     type: "ClusterIP"
+  mutatingWebhookConfiguration:
+    autoGenerateCert:
+      enabled: true
+      recreate: false
+      certPeriodDays: 3650
+    certManager:
+        enabled: false
+    name: "metoro-instrumentation-webhook.metoro.io"
   resources:
     limits:
       cpu: "100m"
