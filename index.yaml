@@ -2,6 +2,16 @@ apiVersion: v1
 entries:
   metoro-exporter:
   - apiVersion: v2
+    appVersion: 0.432.0
+    created: "2024-08-10T12:03:28.119151931Z"
+    description: A helm chart for the Metoro Exporter
+    digest: d472ca023869b8581aaafdc53cc99e398248d541e2b1e623026d444cb332b30b
+    name: metoro-exporter
+    type: application
+    urls:
+    - https://github.com/metoro-io/metoro-helm-charts/releases/download/metoro-exporter-0.432.0/metoro-exporter-0.432.0.tgz
+    version: 0.432.0
+  - apiVersion: v2
     appVersion: 0.431.0
     created: "2024-08-10T11:32:46.610084886Z"
     description: A helm chart for the Metoro Exporter
@@ -141,4 +151,4 @@ entries:
     urls:
     - https://github.com/metoro-io/metoro-helm-charts/releases/download/metoro-exporter-0.62.0/metoro-exporter-0.62.0.tgz
     version: 0.62.0
-generated: "2024-08-10T11:32:46.610187487Z"
+generated: "2024-08-10T12:03:28.119279659Z"
