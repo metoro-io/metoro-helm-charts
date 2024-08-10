@@ -58,6 +58,8 @@ instrumentationWebhook:
       cpu: "100m"
       memory: "128Mi"
 
+otelInstrumentation:
+  enabled: true
 
 exporterSecret:
   name: "exporter-secret"
