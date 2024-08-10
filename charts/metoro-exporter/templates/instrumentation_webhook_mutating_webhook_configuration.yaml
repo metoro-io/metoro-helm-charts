@@ -22,9 +22,6 @@ kind: MutatingWebhookConfiguration
 metadata:
   name: {{ .Values.instrumentationWebhook.mutatingWebhookConfiguration.name }}
   namespace: {{ .Release.Namespace }}
-  annotations:
-    "helm.sh/hook": "post-install"
-    "helm.sh/hook-delete-policy": "hook-succeeded"
   labels:
     {{- include "metoro.labels" . | nindent 4 }}
 webhooks:
