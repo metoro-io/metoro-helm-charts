@@ -4,5 +4,5 @@ description: A helm chart for the Metoro Exporter
 
 type: application
 
-version: 0.431.0
-appVersion: 0.431.0
+version: 0.432.0
+appVersion: 0.432.0
