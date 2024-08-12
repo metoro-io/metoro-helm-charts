@@ -50,6 +50,12 @@ instrumentationWebhook:
     certManager:
         enabled: false
     name: "metoro-instrumentation-webhook.metoro.io"
+  serviceAccount:
+    name: "metoro-instrumentation-webhook"
+  clusterRole:
+    name: "metoro-instrumentation-webhook-cluster-role"
+  clusterRoleBinding:
+    name: "metoro-instrumentation-webhook-cluster-role-binding"
   resources:
     limits:
       cpu: "100m"
