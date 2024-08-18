@@ -70,7 +70,7 @@ spec:
               value: "false"
             {{ end }}
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+            {{- toYaml .Values.exporter.resources | nindent 12 }}
           volumeMounts:
             - name: {{ .Values.exporter.configMap.name }}
               mountPath: /etc/exporter

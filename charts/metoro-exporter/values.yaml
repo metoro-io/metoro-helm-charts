@@ -28,6 +28,12 @@ exporter:
     name: "metoro-exporter-cluster-role"
   clusterRoleBinding:
     name: "metoro-exporter-cluster-role-binding"
+  resources:
+    limits:
+      cpu: "1"
+    requests:
+      cpu: "100m"
+      memory: "1Gi"
 
 instrumentationWebhook:
   secretName: "metoro-instrumentation-webhook-secret"
@@ -61,8 +67,8 @@ instrumentationWebhook:
       cpu: "100m"
       memory: "128Mi"
     requests:
-      cpu: "100m"
-      memory: "128Mi"
+      cpu: "10m"
+      memory: "64Mi"
 
 otelInstrumentation:
   enabled: true
