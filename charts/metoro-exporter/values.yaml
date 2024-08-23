@@ -172,15 +172,15 @@ coroot:
       limits:
         memory: "2Gi"
         cpu: "1"
-clickhouse:
-  enabled: true
-  server:
-    resources:
-      requests:
-        memory: "1Gi"
-        cpu: "100m"
-      limits:
-        memory: "3Gi"
-        cpu: "1"
-    persistence:
-      enabled: false
+  clickhouse:
+    enabled: true
+    server:
+      resources:
+        requests:
+          memory: "1Gi"
+          cpu: "100m"
+        limits:
+          memory: "3Gi"
+          cpu: "1"
+      persistence:
+        enabled: false
