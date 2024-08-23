@@ -57,7 +57,7 @@ spec:
             - name: COROOT_CLICKHOUSE_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name:  coroot-clickhouse
+                  name:  metoro-exporter-clickhouse
                   key: admin-password
             - name: COROOT_CLICKHOUSE_DATABASE
               value: {{ .Values.exporter.clickhouseDatabase }}

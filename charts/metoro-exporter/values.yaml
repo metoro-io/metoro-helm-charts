@@ -93,12 +93,15 @@ opentelemetry-operator:
 coroot:
   enabled: true
   node-agent:
+    tracesEndpoint: http://metoro-exporter-coroot:8080/v1/traces
+    logsEndpoint: http://metoro-exporter-coroot:8080/v1/logs
+    profilesEndpoint: http://metoro-exporter-coroot:8080/v1/profiles
     image:
-    repository: index.docker.io/metoro/metoro-node-agent
-    tag: "latest"
-    pullPolicy: "Always"
+      repository: index.docker.io/metoro/metoro-node-agent
+      tag: "latest"
+      pullPolicy: "Always"
     resources:
-    requests:
+      requests:
         cpu: "100m"
         memory: "100Mi"
     limits:
@@ -106,14 +109,14 @@ coroot:
         memory: "1Gi"
   corootCE:
     image:
-    repository: index.docker.io/metoro/metoro-cluster-server
-    tag: "latest"
-    pullPolicy: "Always"
+      repository: index.docker.io/metoro/metoro-cluster-server
+      tag: "latest"
+      pullPolicy: "Always"
     resources:
-    requests:
+      requests:
         cpu: "100m"
         memory: "1Gi"
-    limits:
+      limits:
         cpu: "1"
         memory: "2Gi"
   prometheus:
