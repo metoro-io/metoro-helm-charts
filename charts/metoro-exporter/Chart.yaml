@@ -6,3 +6,13 @@ type: application
 
 version: 0.437.0
 appVersion: 0.432.0
+
+dependencies:
+  - name: coroot
+    version: 0.14.9
+    repository: https://coroot.github.io/helm-charts
+    condition: coroot.enabled
+  - name: opentelemetry-operator
+    version: 0.68.1
+    repository: https://open-telemetry.github.io/opentelemetry-helm-charts
+    condition: otelInstrumentation.enabled
