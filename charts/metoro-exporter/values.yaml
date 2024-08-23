@@ -169,12 +169,12 @@ coroot:
       persistentVolume:
         enabled: false
       resources:
-      requests:
-        memory: "1Gi"
-        cpu: "100m"
-      limits:
-        memory: "2Gi"
-        cpu: "1"
+        requests:
+          memory: "1Gi"
+          cpu: "100m"
+        limits:
+          memory: "3Gi"
+          cpu: "1"
   clickhouse:
     enabled: true
     server:
