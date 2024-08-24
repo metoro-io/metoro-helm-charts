@@ -180,5 +180,5 @@ coroot:
         limits:
           memory: "3Gi"
           cpu: "1"
-      persistence:
-        enabled: false
+    persistence:
+      enabled: false
