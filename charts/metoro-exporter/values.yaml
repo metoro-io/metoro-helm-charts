@@ -160,7 +160,7 @@ coroot:
       global:
         scrape_interval: "1m"
       remoteWrite:
-        - url: "http://change_me:9090/api/v1/write"
+        - url: "http://metoro-exporter.metoro.svc.cluster.local/api/v1/send/prometheus/remote_write"
           queue_config:
             max_samples_per_send: 5000
       retention: "15m"
