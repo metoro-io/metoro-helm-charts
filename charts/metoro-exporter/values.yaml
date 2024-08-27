@@ -161,8 +161,6 @@ coroot:
         scrape_interval: "1m"
       remoteWrite:
         - url: "http://change_me:9090/api/v1/write"
-          authorization:
-            credentials: "CHANGE_ME"
           queue_config:
             max_samples_per_send: 5000
       retention: "15m"
