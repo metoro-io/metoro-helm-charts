@@ -1,9 +1,0 @@
-dependencies:
-- name: coroot
-  repository: https://coroot.github.io/helm-charts
-  version: 0.14.9
-- name: opentelemetry-operator
-  repository: https://open-telemetry.github.io/opentelemetry-helm-charts
-  version: 0.68.1
-digest: sha256:ad1b6dcc692b99e92d911806e2730e9ddc088f9cdafb601f91115e6ca136b24a
-generated: "2024-08-27T15:01:20.029006+01:00"
