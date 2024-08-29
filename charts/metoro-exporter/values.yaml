@@ -13,7 +13,7 @@ exporter:
   prometheusUrl: "http://change_me:9090"
   shouldDropMetoroData: true
   image:
-    tag: "latest"
+    tag: "stable"
     repository: index.docker.io/metoro/metoro-exporter
     pullPolicy: "Always"
   # Placeholder configmap
@@ -105,7 +105,7 @@ coroot:
     profilesEndpoint: http://metoro-exporter-coroot:8080/v1/profiles
     image:
       repository: index.docker.io/metoro/metoro-node-agent
-      tag: "latest"
+      tag: "stable"
       pullPolicy: "Always"
     resources:
       requests:
@@ -117,7 +117,7 @@ coroot:
   corootCE:
     image:
       repository: index.docker.io/metoro/metoro-cluster-server
-      tag: "latest"
+      tag: "stable"
       pullPolicy: "Always"
     resources:
       requests:
