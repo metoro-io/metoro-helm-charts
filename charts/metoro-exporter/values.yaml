@@ -97,6 +97,8 @@ opentelemetry-operator:
 
 coroot:
   enabled: true
+  corootClusterAgent:
+    enabled: false
   node-agent:
     tracesEndpoint: http://metoro-exporter-coroot:8080/v1/traces
     logsEndpoint: http://metoro-exporter-coroot:8080/v1/logs
