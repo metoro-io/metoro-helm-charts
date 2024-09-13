@@ -3,6 +3,25 @@ entries:
   metoro-exporter:
   - apiVersion: v2
     appVersion: 0.432.0
+    created: "2024-09-13T13:12:00.107972541Z"
+    dependencies:
+    - condition: coroot.enabled
+      name: coroot
+      repository: https://coroot.github.io/helm-charts
+      version: 0.14.9
+    - condition: otelInstrumentation.enabled
+      name: opentelemetry-operator
+      repository: https://open-telemetry.github.io/opentelemetry-helm-charts
+      version: 0.68.1
+    description: A helm chart for the Metoro Exporter
+    digest: e32f9bcf3a40034343318cee8410acc6464d15a7698b6474b2cfcec24685042f
+    name: metoro-exporter
+    type: application
+    urls:
+    - https://github.com/metoro-io/metoro-helm-charts/releases/download/metoro-exporter-0.448.0/metoro-exporter-0.448.0.tgz
+    version: 0.448.0
+  - apiVersion: v2
+    appVersion: 0.432.0
     created: "2024-08-29T15:37:07.023115738Z"
     dependencies:
     - condition: coroot.enabled
@@ -391,4 +410,4 @@ entries:
     urls:
     - https://github.com/metoro-io/metoro-helm-charts/releases/download/metoro-exporter-0.62.0/metoro-exporter-0.62.0.tgz
     version: 0.62.0
-generated: "2024-08-29T15:37:07.023429073Z"
+generated: "2024-09-13T13:12:00.108278483Z"
