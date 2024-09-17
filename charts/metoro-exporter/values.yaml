@@ -1,6 +1,4 @@
-environment: "none"
-
-
+# Exporter
 exporter:
   name: "metoro-exporter"
   replicas: 2
@@ -21,7 +19,6 @@ exporter:
     name: "exporter-config"
     values:
       config.yml: |-
-        Some Config Key
   serviceAccount:
     name: "metoro-exporter"
   clusterRole:
@@ -39,7 +36,19 @@ exporter:
     requests:
       cpu: "100m"
       memory: "1Gi"
+  secret:
+    name: "exporter-secret"
+    bearerToken: "CHANGE_ME"
+    externalSecret:
+      enabled: false
+      name: "CHANGE_ME"
+      secretKey: "AUTH_TOKEN"
+# Node Agent
+# Cluster Agent
+# Prometheus
+# Clickhouse
 
+# Otel Instrumentation
 instrumentationWebhook:
   secretName: "metoro-instrumentation-webhook-secret"
   name: "metoro-instrumentation-webhook"
@@ -74,14 +83,8 @@ instrumentationWebhook:
     requests:
       cpu: "10m"
       memory: "64Mi"
-
 otelInstrumentation:
   enabled: true
-
-exporterSecret:
-  name: "exporter-secret"
-  bearerToken: "CHANGE_ME"
-
 opentelemetry-operator:
   enabled: false
   admissionWebhooks:

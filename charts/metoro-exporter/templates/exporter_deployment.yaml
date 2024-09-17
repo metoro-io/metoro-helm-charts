@@ -33,8 +33,6 @@ spec:
           env:
             - name: VERSION
               value: {{ .Chart.AppVersion }}
-            - name: ENVIRONMENT
-              value: {{ .Values.environment }}
             - name: HOST_IP
               valueFrom:
                 fieldRef:
@@ -48,7 +46,7 @@ spec:
             - name: METORO_AUTH_TOKEN
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.exporterSecret.name }}
+                  name: {{ .Values.exporter.secret.name }}
                   key: AUTH_TOKEN
             - name: COROOT_CLICKHOUSE_URL
               value: {{ .Values.exporter.clickhouseUrl }}
