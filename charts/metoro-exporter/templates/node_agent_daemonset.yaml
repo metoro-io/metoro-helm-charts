@@ -1,0 +1,100 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ .Values.nodeAgent.name }}
+  labels:
+    {{- .Values.nodeAgent.selectorLabels | nindent 4 }}
+spec:
+  {{- with .Values.nodeAgent.updateStrategy }}
+  updateStrategy:
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- .Values.nodeAgent.selectorLabels | nindent 6 }}
+  template:
+    metadata:
+      labels:
+      {{- .Values.nodeAgent.selectorLabels | nindent 8 }}
+        app: {{ .Values.nodeAgent.name }}
+      annotations:
+        prometheus.io/scrape: '{{ .Values.nodeAgent.prometheus.scrape | default true}}'
+        prometheus.io/port: '{{ .Values.nodeAgent.prometheus.port }}'
+        {{- if .Values.nodeAgent.annotations }}
+        {{- toYaml .Values.nodeAgent.annotations | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.nodeAgent.image.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.nodeAgent.affinity }}
+      affinity:
+        {{- include .Values.nodeAgent.affinity | nindent 8 }}
+      {{- end }}
+      tolerations:
+        - operator: Exists
+      priorityClassName: {{ .Values.nodeAgent.priorityClassName }}
+      hostPID: true
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.nodeAgent.image.repository }}:{{ .Values.nodeAgent.image.tag }}"
+          args:
+            - "--listen=0.0.0.0:{{ .Values.nodeAgent.prometheus.port }}"
+            - "--cgroupfs-root"
+            - "/host/sys/fs/cgroup"
+          imagePullPolicy: {{ .Values.nodeAgent.image.pullPolicy }}
+          resources:
+            {{- toYaml .Values.nodeAgent.resources | nindent 12 }}
+          env:
+          {{- if .Values.nodeAgent.collectorEndpoint }}
+            - name: COLLECTOR_ENDPOINT
+              value: "{{ .Values.collectorEndpoint }}"
+          {{- end }}
+          {{- if .Values.nodeAgent.apiKey }}
+            - name: API_KEY
+              value: "{{ .Values.apiKey }}"
+          {{- end }}
+          {{- if .Values.nodeAgent.envVars.tracesEndpoint }}
+            - name: TRACES_ENDPOINT
+              value: "{{ .Values.nodeAgent.envVars.tracesEndpoint }}"
+          {{- end }}
+          {{- if .Values.nodeAgent.envVars.logsEndpoint }}
+            - name: LOGS_ENDPOINT
+              value: "{{ .Values.nodeAgent.envVars.logsEndpoint }}"
+          {{- end }}
+          {{- if .Values.nodeAgent.envVars.profilesEndpoint }}
+            - name: PROFILES_ENDPOINT
+              value: "{{ .Values.nodeAgent.envVars.profilesEndpoint }}"
+          {{- end }}
+          ports:
+            - containerPort: {{ .Values.nodeAgent.prometheus.port }}
+              name: http
+          securityContext:
+            # Required to access node level cgroup stats + inject ebpf programs into the kernel
+            privileged: true
+          volumeMounts:
+            - mountPath: /host/sys/fs/cgroup
+              name: cgroupfs
+              readOnly: true
+            - mountPath: /sys/kernel/tracing
+              name: tracefs
+              readOnly: false
+            - mountPath: /sys/kernel/debug
+              name: debugfs
+              readOnly: false
+            - mountPath: /tmp
+              name: tmp
+              readOnly: false
+      volumes:
+        - hostPath:
+            path: /sys/fs/cgroup
+          name: cgroupfs
+        - hostPath:
+            path: /sys/kernel/tracing
+          name: tracefs
+        - hostPath:
+            path: /sys/kernel/debug
+          name: debugfs
+        - emptyDir: { }
+          name: tmp

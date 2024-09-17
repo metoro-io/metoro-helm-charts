@@ -44,6 +44,46 @@ exporter:
       name: "CHANGE_ME"
       secretKey: "AUTH_TOKEN"
 # Node Agent
+nodeAgent:
+  name: "metoro-node-agent"
+  envVars:
+    tracesEndpoint: "http://metoro-cluster-agent:8080/v1/traces"
+    logsEndpoint: "http://metoro-cluster-agent:8080/v1/logs"
+    profilesEndpoint: "http://metoro-cluster-agent:8080/v1/profiles"
+  selectorLabels:
+    app.kubernetes.io/name: "metoro-node-agent"
+  annotations: {}
+  updateStrategy:
+    type: "RollingUpdate"
+  prometheus:
+    scrape: true
+    port: "80"
+  image:
+    repository: index.docker.io/metoro/metoro-node-agent
+    tag: "stable"
+    # This should be kept as Always in the vast majority of cases. The node agent restarts itself each day in order to pick up the latest agent image.
+    # If this is set to anything else, the node agent will fall behind and miss out on new features, bug fixes and security patches.
+    pullPolicy: "Always"
+    imagePullSecrets: []
+  # The below resources are tuned for a typical deployment. Around 200k requests per node per hour. Reach out for help tuning these values.
+  resources:
+    limits:
+      cpu: "1"
+      memory: "1Gi"
+    requests:
+      cpu: "100m"
+      memory: "100Mi"
+  priorityClassName: ""
+  affinity:
+     nodeAffinity:
+       requiredDuringSchedulingIgnoredDuringExecution:
+         nodeSelectorTerms:
+           # We can't run on Fargate (or any other serverless platform) as we don't have access to the host to run ebpf programs
+           - matchExpressions:
+               - key: eks.amazonaws.com/compute-type
+                 operator: NotIn
+                 values:
+                   - fargate
 # Cluster Agent
 # Prometheus
 # Clickhouse
@@ -134,14 +174,14 @@ coroot:
     serverFiles:
       prometheus.yml:
         scrape_configs:
-        - job_name: 'coroot-node-agent'
+        - job_name: 'metoro-node-agent'
           honor_labels: true
           kubernetes_sd_configs:
             - role: pod
           relabel_configs:
             - source_labels: [ __meta_kubernetes_pod_label_app]
               action: keep
-              regex: coroot-node-agent
+              regex: metoro-node-agent
             - source_labels: [ __meta_kubernetes_pod_annotation_prometheus_io_scheme ]
               action: replace
               regex: (https?)
