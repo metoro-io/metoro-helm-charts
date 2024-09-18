@@ -250,8 +250,6 @@ prometheus:
     global:
       scrape_interval: "1m"
     remoteWrite:
-      # TODO: Figure out how to have this be set
-      #       - url: http://{{ tpl .Values.exporter.service.name . }}{{ tpl .Relase.Namespace . }}.svc.cluster.local{{ tpl .Values.exporter.service.port . }}/api/v1/send/prometheus/remote_write
       - url: "http://metoro-exporter/api/v1/send/prometheus/remote_write"
         queue_config:
           max_samples_per_send: 5000
