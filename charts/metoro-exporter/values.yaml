@@ -279,15 +279,14 @@ clickhouse:
     username: "default"
     existingSecret: ""
     existingSecretKey: ""
-  server:
     # These resources are tuned for a typical deployment. Around 200k requests per node per hour. Reach out for help tuning these values.
-    resources:
-      requests:
-        memory: "1Gi"
-        cpu: "100m"
-      limits:
-        memory: "3Gi"
-        cpu: "1"
+  resources:
+    requests:
+      memory: "1Gi"
+      cpu: "100m"
+    limits:
+      memory: "3Gi"
+      cpu: "1"
   persistence:
     enabled: false
   extraOverrides: |
