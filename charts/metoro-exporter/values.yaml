@@ -1,14 +1,9 @@
 # Exporter
 exporter:
   name: "metoro-exporter"
-  replicas: 2
-  otlpUrl: "http://change_me:4317"
-  metadataUrl: "http://change_me:4317"
-  apiServerUrl: "http://change_me:4317"
-  clickhouseUrl: "change_me:9000"
-  clickhouseDatabase: "change_me"
-  clickhouseUser: "change_me"
-  prometheusUrl: "http://change_me:9090"
+  replicas: 1
+  otlpUrl: "https://us-east.metoro.io/ingest/api/v1/otel"
+  apiServerUrl: "https://us-east.metoro.io/api/v1/exporter"
   shouldDropMetoroData: true
   image:
     tag: "stable"
@@ -19,6 +14,7 @@ exporter:
     name: "exporter-config"
     values:
       config.yml: |-
+        # Placeholder config
   serviceAccount:
     name: "metoro-exporter"
   clusterRole:
@@ -145,16 +141,14 @@ clusterServer:
           name: otel
           port: 4318
 
-# Prometheus
-# Clickhouse
-
 # Otel Instrumentation
 instrumentationWebhook:
+  enabled: false
   secretName: "metoro-instrumentation-webhook-secret"
   name: "metoro-instrumentation-webhook"
   replicas: 2
   image:
-    tag: "latest"
+    tag: "stable"
     repository: index.docker.io/metoro/metoro-instrumentation-webhook
     pullPolicy: "Always"
   service:
@@ -184,7 +178,7 @@ instrumentationWebhook:
       cpu: "10m"
       memory: "64Mi"
 otelInstrumentation:
-  enabled: true
+  enabled: false
 opentelemetry-operator:
   enabled: false
   admissionWebhooks:
@@ -198,6 +192,7 @@ opentelemetry-operator:
     extraArgs:
       - "--enable-go-instrumentation=true"
 
+# Prometheus
 prometheus:
   enabled: true
   nodeExporter:
@@ -241,9 +236,11 @@ prometheus:
             target_label: instance
             action: replace
   server:
+    fullnameOverride: "metoro-prometheus"
     global:
       scrape_interval: "1m"
     remoteWrite:
+      # TODO: Figure out how to have this be set
       - url: "http://metoro-exporter.metoro.svc.cluster.local/api/v1/send/prometheus/remote_write"
         queue_config:
           max_samples_per_send: 5000
@@ -260,13 +257,17 @@ prometheus:
       limits:
         memory: "3Gi"
         cpu: "1"
+
+# Clickhouse
 clickhouse:
+  fullnameOverride: "metoro-clickhouse"
   enabled: true
   replicaCount: 1
   shards: 1
   zookeeper:
     enabled: false
   auth:
+    username: "default"
     existingSecret: ""
     existingSecretKey: ""
   server:
