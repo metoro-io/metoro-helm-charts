@@ -8,11 +8,15 @@ version: 0.447.0
 appVersion: 0.432.0
 
 dependencies:
-  - name: coroot
-    version: 0.14.9
-    repository: https://coroot.github.io/helm-charts
-    condition: coroot.enabled
+  - name: prometheus
+    version: 25.27.0
+    repository: https://prometheus-community.github.io/helm-charts
+    condition: prometheus.enabled
+  - name: clickhouse
+    version: 6.2.23
+    repository: https://charts.bitnami.com/bitnami
+    condition: clickhouse.enabled
   - name: opentelemetry-operator
-    version: 0.68.1
+    version: 0.69.0
     repository: https://open-telemetry.github.io/opentelemetry-helm-charts
     condition: otelInstrumentation.enabled
