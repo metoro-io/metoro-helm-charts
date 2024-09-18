@@ -99,7 +99,7 @@ nodeAgent:
                      - fargate
     tolerations: []
     nodeSelector: {}
-# Cluster Agent
+# Cluster Server
 clusterServer:
   metadata:
     name: "metoro-cluster-server"
