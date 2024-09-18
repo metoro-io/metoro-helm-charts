@@ -43,10 +43,7 @@ exporter:
 nodeAgent:
   name: "metoro-node-agent"
   envVars:
-    mandatory:
-      tracesEndpoint: "http://metoro-cluster-agent:8080/v1/traces"
-      logsEndpoint: "http://metoro-cluster-agent:8080/v1/logs"
-      profilesEndpoint: "http://metoro-cluster-agent:8080/v1/profiles"
+    mandatory: {}
     userDefined: {}
   selectorLabels:
     app.kubernetes.io/name: "metoro-node-agent"
@@ -194,12 +191,10 @@ opentelemetry-operator:
 # Prometheus
 prometheus:
   enabled: true
-  nodeExporter:
+  prometheus-node-exporter:
+   enabled: false
+  prometheus-pushgateway:
     enabled: false
-  pushgateway:
-    enabled: false
-  kubeStateMetrics:
-    enabled: true
   kube-state-metrics:
     enabled: true
   alertmanager:

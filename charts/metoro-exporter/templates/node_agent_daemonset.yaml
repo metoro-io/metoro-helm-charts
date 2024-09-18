@@ -56,11 +56,11 @@ spec:
               value: "{{ .Values.apiKey }}"
           {{- end }}
             - name: TRACES_ENDPOINT
-              value: {{ printf "http://%s:%d/v1/traces" .Values.clusterServer.services.openTelemetryCollector.metadata.name (.Values.clusterServer.services.openTelemetryCollector.ports.otel | int) }}
+              value: {{ printf "http://%s:%d/v1/traces" .Values.clusterServer.services.openTelemetryCollector.metadata.name (.Values.clusterServer.services.openTelemetryCollector.ports.otel.port | int) }}
             - name: LOGS_ENDPOINT
-              value: {{ printf "http://%s:%d/v1/logs" .Values.clusterServer.services.openTelemetryCollector.metadata.name (.Values.clusterServer.services.openTelemetryCollector.ports.otel | int) }}
+              value: {{ printf "http://%s:%d/v1/logs" .Values.clusterServer.services.openTelemetryCollector.metadata.name (.Values.clusterServer.services.openTelemetryCollector.ports.otel.port | int) }}
             - name: PROFILES_ENDPOINT
-              value: {{ printf "http://%s:%d/v1/profiles" .Values.clusterServer.services.openTelemetryCollector.metadata.name (.Values.clusterServer.services.openTelemetryCollector.ports.otel | int) }}
+              value: {{ printf "http://%s:%d/v1/profiles" .Values.clusterServer.services.openTelemetryCollector.metadata.name (.Values.clusterServer.services.openTelemetryCollector.ports.otel.port | int) }}
           {{ with .Values.nodeAgent.envVars.userDefined }}
           {{- . | toYaml | nindent 12 }}
           {{- end }}
