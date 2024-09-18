@@ -32,6 +32,10 @@ spec:
       affinity:
         {{- toYaml .Values.nodeAgent.scheduling.affinity | nindent 8 }}
       {{- end }}
+      {{- if .Values.nodeAgent.scheduling.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.nodeAgent.scheduling.nodeSelector | nindent 8 }}
+      {{- end }}
       tolerations:
         - operator: Exists
       priorityClassName: {{ .Values.nodeAgent.priorityClassName }}
