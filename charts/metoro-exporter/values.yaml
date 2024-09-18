@@ -1,51 +1,166 @@
-environment: "none"
-
-
+# Exporter
 exporter:
-  name: "metoro-exporter"
-  replicas: 2
-  otlpUrl: "http://change_me:4317"
-  metadataUrl: "http://change_me:4317"
-  apiServerUrl: "http://change_me:4317"
-  clickhouseUrl: "change_me:9000"
-  clickhouseDatabase: "change_me"
-  clickhouseUser: "change_me"
-  prometheusUrl: "http://change_me:9090"
-  shouldDropMetoroData: true
+  metadata:
+    name: "metoro-exporter"
+    podAnnotations: {}
+    selectorLabels:
+      app.kubernetes.io/name: "metoro-exporter"
+  replicas: 1
+  updateStrategy:
+    type: "RollingUpdate"
+  envVars:
+    mandatory:
+      otlpUrl: "https://us-east.metoro.io/ingest/api/v1/otel"
+      apiServerUrl: "https://us-east.metoro.io/api/v1/exporter"
+      shouldDropMetoroData: "true"
+    userDefined: {}
   image:
     tag: "stable"
     repository: index.docker.io/metoro/metoro-exporter
     pullPolicy: "Always"
+    imagePullSecrets: [ ]
   # Placeholder configmap
   configMap:
     name: "exporter-config"
     values:
       config.yml: |-
-        Some Config Key
+        # Placeholder config
   serviceAccount:
     name: "metoro-exporter"
   clusterRole:
     name: "metoro-exporter-cluster-role"
   clusterRoleBinding:
     name: "metoro-exporter-cluster-role-binding"
-  service:
-    name: "metoro-exporter"
-    port: 80
-    targetPort: 8080
-    type: "ClusterIP"
+  services:
+    metoroExporter:
+      # Note, if you change these values then you will need to update the prometheus remote write config to match
+      # This is an unfortunate limitation of helm (https://github.com/helm/helm/issues/6699)
+      # Search for "http://metoro-exporter/api/v1/send/prometheus/remote_write" in this file to find the relevant section
+      name: "metoro-exporter"
+      port: 80
   resources:
     limits:
       cpu: "1"
     requests:
       cpu: "100m"
       memory: "1Gi"
+  secret:
+    name: "exporter-secret"
+    bearerToken: "CHANGE_ME"
+    externalSecret:
+      enabled: false
+      name: "CHANGE_ME"
+      secretKey: "AUTH_TOKEN"
+  scheduling:
+    affinity: {}
+    tolerations: []
+# Node Agent
+nodeAgent:
+  metadata:
+    name: "metoro-node-agent"
+    podAnnotations: {}
+    selectorLabels:
+      app.kubernetes.io/name: "metoro-node-agent"
+  envVars:
+    mandatory: {}
+    userDefined: {}
+  updateStrategy:
+    type: "RollingUpdate"
+  prometheus:
+    scrape: true
+    port: "80"
+  image:
+    repository: index.docker.io/metoro/metoro-node-agent
+    tag: "stable"
+    # This should be kept as Always in the vast majority of cases. The node agent restarts itself each day in order to pick up the latest agent image.
+    # If this is set to anything else, the node agent will fall behind and miss out on new features, bug fixes and security patches.
+    pullPolicy: "Always"
+    imagePullSecrets: []
+  # The below resources are tuned for a typical deployment. Around 200k requests per node per hour. Reach out for help tuning these values.
+  resources:
+    limits:
+      cpu: "1"
+      memory: "1Gi"
+    requests:
+      cpu: "100m"
+      memory: "100Mi"
+  priorityClassName: ""
+  scheduling:
+    affinity:
+       nodeAffinity:
+         requiredDuringSchedulingIgnoredDuringExecution:
+           nodeSelectorTerms:
+             # We can't run on Fargate (or any other serverless platform) as we don't have access to the host to run ebpf programs
+             - matchExpressions:
+                 - key: eks.amazonaws.com/compute-type
+                   operator: NotIn
+                   values:
+                     - fargate
+    tolerations: []
+# Cluster Agent
+clusterServer:
+  metadata:
+    name: "metoro-cluster-server"
+    podAnnotations: {}
+    selectorLabels:
+      app.kubernetes.io/name: "metoro-cluster-server"
+  replicas: 1
+  updateStrategy:
+    type: "RollingUpdate"
+  envVars:
+    mandatory:
+      clickhouseDatabase: "default"
+      clickhouseUsername: "default"
+    userDefined: {}
+  image:
+    repository: index.docker.io/metoro/metoro-cluster-server
+    tag: "stable"
+    # This should be kept as Always in the vast majority of cases. The cluster-server restarts itself each day in order to pick up the latest agent image.
+    # If this is set to anything else, the cluster server will fall behind and miss out on new features, bug fixes and security patches.
+    pullPolicy: "Always"
+    imagePullSecrets: [ ]
+  # The below resources are tuned for a typical deployment. Around 200k requests per node per hour. Reach out for help tuning these values.
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "1Gi"
+    limits:
+      cpu: "1"
+      memory: "2Gi"
+  diskSpace: "10Gi"
+  scheduling:
+    affinity: {}
+    tolerations: []
+  services:
+    clusterServer:
+      metadata:
+        name: "metoro-cluster-server"
+        annotations: {}
+        labels:
+          app.kubernetes.io/name: "metoro-cluster-server"
+      ports:
+        http:
+          name: http
+          port: 8080
+    openTelemetryCollector:
+      metadata:
+        name: "metoro-opentelemetry-collector"
+        annotations: {}
+        labels:
+          app.kubernetes.io/name: "metoro-opentelemetry-collector"
+      ports:
+        otel:
+          name: otel
+          port: 4318
 
+# Otel Instrumentation
 instrumentationWebhook:
+  enabled: false
   secretName: "metoro-instrumentation-webhook-secret"
   name: "metoro-instrumentation-webhook"
   replicas: 2
   image:
-    tag: "latest"
+    tag: "stable"
     repository: index.docker.io/metoro/metoro-instrumentation-webhook
     pullPolicy: "Always"
   service:
@@ -74,14 +189,8 @@ instrumentationWebhook:
     requests:
       cpu: "10m"
       memory: "64Mi"
-
 otelInstrumentation:
-  enabled: true
-
-exporterSecret:
-  name: "exporter-secret"
-  bearerToken: "CHANGE_ME"
-
+  enabled: false
 opentelemetry-operator:
   enabled: false
   admissionWebhooks:
@@ -95,95 +204,103 @@ opentelemetry-operator:
     extraArgs:
       - "--enable-go-instrumentation=true"
 
-coroot:
+# Prometheus
+prometheus:
   enabled: true
-  corootClusterAgent:
+  prometheus-node-exporter:
+   enabled: false
+  prometheus-pushgateway:
     enabled: false
-  node-agent:
-    tracesEndpoint: http://metoro-exporter-coroot:8080/v1/traces
-    logsEndpoint: http://metoro-exporter-coroot:8080/v1/logs
-    profilesEndpoint: http://metoro-exporter-coroot:8080/v1/profiles
-    image:
-      repository: index.docker.io/metoro/metoro-node-agent
-      tag: "stable"
-      pullPolicy: "Always"
-    resources:
-      requests:
-        cpu: "100m"
-        memory: "100Mi"
-    limits:
-        cpu: "1"
-        memory: "1Gi"
-  corootCE:
-    image:
-      repository: index.docker.io/metoro/metoro-cluster-server
-      tag: "stable"
-      pullPolicy: "Always"
-    resources:
-      requests:
-        cpu: "100m"
-        memory: "1Gi"
-      limits:
-        cpu: "1"
-        memory: "2Gi"
-  prometheus:
+  kube-state-metrics:
     enabled: true
-    serverFiles:
-      prometheus.yml:
-        scrape_configs:
-        - job_name: 'coroot-node-agent'
-          honor_labels: true
-          kubernetes_sd_configs:
-            - role: pod
-          relabel_configs:
-            - source_labels: [ __meta_kubernetes_pod_label_app]
-              action: keep
-              regex: coroot-node-agent
-            - source_labels: [ __meta_kubernetes_pod_annotation_prometheus_io_scheme ]
-              action: replace
-              regex: (https?)
-              target_label: __scheme__
-            - source_labels: [ __meta_kubernetes_pod_annotation_prometheus_io_path ]
-              action: replace
-              target_label: __metrics_path__
-              regex: (.+)
-            - source_labels: [ __address__, __meta_kubernetes_pod_annotation_prometheus_io_port ]
-              action: replace
-              regex: (.+?)(?::\d+)?;(\d+)
-              replacement: $1:$2
-              target_label: __address__
-            - source_labels: [ __meta_kubernetes_pod_phase ]
-              regex: Pending|Succeeded|Failed|Completed
-              action: drop
-            - source_labels: [__meta_kubernetes_pod_node_name]
-              target_label: instance
-              action: replace
-    server:
-      global:
-        scrape_interval: "1m"
-      remoteWrite:
-        - url: "http://metoro-exporter.metoro.svc.cluster.local/api/v1/send/prometheus/remote_write"
-          queue_config:
-            max_samples_per_send: 5000
-      retention: "15m"
-      persistentVolume:
-        enabled: false
-      resources:
-        requests:
-          memory: "1Gi"
-          cpu: "100m"
-        limits:
-          memory: "3Gi"
-          cpu: "1"
-  clickhouse:
-    enabled: true
-    server:
-      resources:
-        requests:
-          memory: "1Gi"
-          cpu: "100m"
-        limits:
-          memory: "3Gi"
-          cpu: "1"
-    persistence:
+  alertmanager:
+    enabled: false
+  serverFiles:
+    prometheus.yml:
+      scrape_configs:
+      - job_name: 'metoro-node-agent'
+        honor_labels: true
+        kubernetes_sd_configs:
+          - role: pod
+        relabel_configs:
+          - source_labels: [ __meta_kubernetes_pod_label_app]
+            action: keep
+            regex: metoro-node-agent
+          - source_labels: [ __meta_kubernetes_pod_annotation_prometheus_io_scheme ]
+            action: replace
+            regex: (https?)
+            target_label: __scheme__
+          - source_labels: [ __meta_kubernetes_pod_annotation_prometheus_io_path ]
+            action: replace
+            target_label: __metrics_path__
+            regex: (.+)
+          - source_labels: [ __address__, __meta_kubernetes_pod_annotation_prometheus_io_port ]
+            action: replace
+            regex: (.+?)(?::\d+)?;(\d+)
+            replacement: $1:$2
+            target_label: __address__
+          - source_labels: [ __meta_kubernetes_pod_phase ]
+            regex: Pending|Succeeded|Failed|Completed
+            action: drop
+          - source_labels: [__meta_kubernetes_pod_node_name]
+            target_label: instance
+            action: replace
+  server:
+    fullnameOverride: "metoro-prometheus"
+    global:
+      scrape_interval: "1m"
+    remoteWrite:
+      # TODO: Figure out how to have this be set
+      #       - url: http://{{ tpl .Values.exporter.service.name . }}{{ tpl .Relase.Namespace . }}.svc.cluster.local{{ tpl .Values.exporter.service.port . }}/api/v1/send/prometheus/remote_write
+      - url: "http://metoro-exporter/api/v1/send/prometheus/remote_write"
+        queue_config:
+          max_samples_per_send: 5000
+    retention: "15m"
+    extraFlags:
+      - web.enable-remote-write-receiver
+    persistentVolume:
       enabled: false
+    # These resources are tuned for a typical deployment. Around 200k requests per node per hour. Reach out for help tuning these values.
+    resources:
+      requests:
+        memory: "1Gi"
+        cpu: "100m"
+      limits:
+        memory: "3Gi"
+        cpu: "1"
+
+# Clickhouse
+clickhouse:
+  fullnameOverride: "metoro-clickhouse"
+  enabled: true
+  replicaCount: 1
+  shards: 1
+  zookeeper:
+    enabled: false
+  auth:
+    username: "default"
+    existingSecret: ""
+    existingSecretKey: ""
+  server:
+    # These resources are tuned for a typical deployment. Around 200k requests per node per hour. Reach out for help tuning these values.
+    resources:
+      requests:
+        memory: "1Gi"
+        cpu: "100m"
+      limits:
+        memory: "3Gi"
+        cpu: "1"
+  persistence:
+    enabled: false
+  extraOverrides: |
+    <clickhouse>
+      <asynchronous_metric_log remove="1"/>
+      <metric_log remove="1"/>
+      <query_log remove="1" />
+      <query_thread_log remove="1" />
+      <query_views_log remove="1" />
+      <part_log remove="1"/>
+      <text_log remove="1" />
+      <trace_log remove="1"/>
+      <opentelemetry_span_log remove="1"/>
+    </clickhouse>

@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.clusterServer.metadata.name }}
+  labels:
+    {{- toYaml .Values.clusterServer.metadata.selectorLabels | nindent 4 }}
+spec:
+  replicas: {{ .Values.clusterServer.replicas }}
+  strategy:
+    {{- toYaml .Values.clusterServer.updateStrategy | nindent 4 }}
+  selector:
+    matchLabels:
+      {{- toYaml .Values.clusterServer.metadata.selectorLabels | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.clusterServer.metadata.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- toYaml .Values.clusterServer.metadata.selectorLabels | nindent 8 }}
+    spec:
+      {{- with .Values.clusterServer.image.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ .Values.clusterServer.metadata.name }}
+          image: "{{ .Values.clusterServer.image.repository }}:{{ .Values.clusterServer.image.tag }}"
+          imagePullPolicy: {{ .Values.clusterServer.image.pullPolicy }}
+          args:
+            - --listen=:8080
+            - --data-dir=/data
+          env:
+            - name: BOOTSTRAP_CLICKHOUSE_ADDRESS
+              value: {{ printf "%s:%s" (.Values.clickhouse.fullnameOverride) (.Values.clickhouse.service.ports.tcp | toString ) }}
+            - name: BOOTSTRAP_CLICKHOUSE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.clickhouse.fullnameOverride }}
+                  key: "admin-password"
+            - name: BOOTSTRAP_CLICKHOUSE_USER
+              value: {{ .Values.clusterServer.envVars.mandatory.clickhouseUsername }}
+            - name: BOOTSTRAP_CLICKHOUSE_DATABASE
+              value: {{ .Values.clusterServer.envVars.mandatory.clickhouseDatabase }}
+          {{- with .Values.clusterServer.envVars.userDefined }}
+          {{- . | toYaml | nindent 12 }}
+          {{- end }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+          resources:
+            {{- toYaml .Values.clusterServer.resources | nindent 12 }}
+          volumeMounts:
+            - mountPath: /data
+              name: data
+      volumes:
+        - name: data
+          emptyDir:
+            sizeLimit: {{ .Values.clusterServer.diskSpace }}
+      {{- with .Values.clusterServer.scheduling.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.clusterServer.scheduling.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

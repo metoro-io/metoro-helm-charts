@@ -36,8 +36,6 @@ spec:
           env:
             - name: VERSION
               value: {{ .Chart.AppVersion }}
-            - name: ENVIRONMENT
-              value: {{ .Values.environment }}
             - name: GIN_MODE
               value: release
           resources:

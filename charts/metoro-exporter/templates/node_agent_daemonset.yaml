@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ .Values.nodeAgent.metadata.name }}
+  labels:
+    {{- toYaml .Values.nodeAgent.metadata.selectorLabels | nindent 4 }}
+spec:
+  {{- with .Values.nodeAgent.updateStrategy }}
+  updateStrategy:
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- toYaml .Values.nodeAgent.metadata.selectorLabels | nindent 6 }}
+  template:
+    metadata:
+      labels:
+      {{- toYaml .Values.nodeAgent.metadata.selectorLabels | nindent 8 }}
+        app: {{ .Values.nodeAgent.metadata.name }}
+      annotations:
+        prometheus.io/scrape: '{{ .Values.nodeAgent.prometheus.scrape | default true}}'
+        prometheus.io/port: '{{ .Values.nodeAgent.prometheus.port }}'
+        {{- if .Values.nodeAgent.metadata.podAnnotations }}
+        {{- toYaml .Values.nodeAgent.metadata.podAnnotations | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.nodeAgent.image.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.nodeAgent.scheduling.affinity }}
+      affinity:
+        {{- toYaml .Values.nodeAgent.scheduling.affinity | nindent 8 }}
+      {{- end }}
+      tolerations:
+        - operator: Exists
+      priorityClassName: {{ .Values.nodeAgent.priorityClassName }}
+      hostPID: true
+      containers:
+        - name: {{ .Values.nodeAgent.metadata.name }}
+          image: "{{ .Values.nodeAgent.image.repository }}:{{ .Values.nodeAgent.image.tag }}"
+          args:
+            - "--listen=0.0.0.0:{{ .Values.nodeAgent.prometheus.port }}"
+            - "--cgroupfs-root"
+            - "/host/sys/fs/cgroup"
+          imagePullPolicy: {{ .Values.nodeAgent.image.pullPolicy }}
+          resources:
+            {{- toYaml .Values.nodeAgent.resources | nindent 12 }}
+          env:
+            - name: TRACES_ENDPOINT
+              value: {{ printf "http://%s:%d/v1/traces" .Values.clusterServer.services.openTelemetryCollector.metadata.name (.Values.clusterServer.services.openTelemetryCollector.ports.otel.port | int) }}
+            - name: LOGS_ENDPOINT
+              value: {{ printf "http://%s:%d/v1/logs" .Values.clusterServer.services.openTelemetryCollector.metadata.name (.Values.clusterServer.services.openTelemetryCollector.ports.otel.port | int) }}
+            - name: PROFILES_ENDPOINT
+              value: {{ printf "http://%s:%d/v1/profiles" .Values.clusterServer.services.openTelemetryCollector.metadata.name (.Values.clusterServer.services.openTelemetryCollector.ports.otel.port | int) }}
+          {{ with .Values.nodeAgent.envVars.userDefined }}
+          {{- . | toYaml | nindent 12 }}
+          {{- end }}
+          ports:
+            - containerPort: {{ .Values.nodeAgent.prometheus.port }}
+              name: http
+          securityContext:
+            # Required to access node level cgroup stats + inject ebpf programs into the kernel
+            privileged: true
+          volumeMounts:
+            - mountPath: /host/sys/fs/cgroup
+              name: cgroupfs
+              readOnly: true
+            - mountPath: /sys/kernel/tracing
+              name: tracefs
+              readOnly: false
+            - mountPath: /sys/kernel/debug
+              name: debugfs
+              readOnly: false
+            - mountPath: /tmp
+              name: tmp
+              readOnly: false
+      volumes:
+        - hostPath:
+            path: /sys/fs/cgroup
+          name: cgroupfs
+        - hostPath:
+            path: /sys/kernel/tracing
+          name: tracefs
+        - hostPath:
+            path: /sys/kernel/debug
+          name: debugfs
+        - emptyDir: { }
+          name: tmp
