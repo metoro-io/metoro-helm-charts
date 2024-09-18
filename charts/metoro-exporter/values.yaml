@@ -1,14 +1,22 @@
 # Exporter
 exporter:
-  name: "metoro-exporter"
+  metadata:
+    name: "metoro-exporter"
+    podAnnotations: {}
+    selectorLabels:
+      app.kubernetes.io/name: "metoro-exporter"
   replicas: 1
-  otlpUrl: "https://us-east.metoro.io/ingest/api/v1/otel"
-  apiServerUrl: "https://us-east.metoro.io/api/v1/exporter"
-  shouldDropMetoroData: true
+  envVars:
+    mandatory:
+      otlpUrl: "https://us-east.metoro.io/ingest/api/v1/otel"
+      apiServerUrl: "https://us-east.metoro.io/api/v1/exporter"
+      shouldDropMetoroData: "true"
+    userDefined: {}
   image:
     tag: "stable"
     repository: index.docker.io/metoro/metoro-exporter
     pullPolicy: "Always"
+    imagePullSecrets: [ ]
   # Placeholder configmap
   configMap:
     name: "exporter-config"
@@ -21,11 +29,10 @@ exporter:
     name: "metoro-exporter-cluster-role"
   clusterRoleBinding:
     name: "metoro-exporter-cluster-role-binding"
-  service:
-    name: "metoro-exporter"
-    port: 80
-    targetPort: 8080
-    type: "ClusterIP"
+  services:
+    metoroExporter:
+      name: "metoro-exporter"
+      port: 80
   resources:
     limits:
       cpu: "1"
@@ -39,6 +46,9 @@ exporter:
       enabled: false
       name: "CHANGE_ME"
       secretKey: "AUTH_TOKEN"
+  scheduling:
+    affinity: {}
+    tolerations: []
 # Node Agent
 nodeAgent:
   name: "metoro-node-agent"
@@ -235,6 +245,7 @@ prometheus:
       scrape_interval: "1m"
     remoteWrite:
       # TODO: Figure out how to have this be set
+      #       - url: http://{{ tpl .Values.exporter.service.name . }}{{ tpl .Relase.Namespace . }}.svc.cluster.local{{ tpl .Values.exporter.service.port . }}/api/v1/send/prometheus/remote_write
       - url: "http://metoro-exporter.metoro.svc.cluster.local/api/v1/send/prometheus/remote_write"
         queue_config:
           max_samples_per_send: 5000
