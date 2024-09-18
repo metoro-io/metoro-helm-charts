@@ -62,7 +62,7 @@ spec:
       volumes:
         - name: data
           emptyDir:
-            sizeLimit: {{ .Values.clusterServer.resources.diskSpace }}
+            sizeLimit: {{ .Values.clusterServer.diskSpace }}
       {{- with .Values.clusterServer.scheduling.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}

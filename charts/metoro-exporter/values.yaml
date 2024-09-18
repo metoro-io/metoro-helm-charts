@@ -111,7 +111,7 @@ clusterServer:
     limits:
       cpu: "1"
       memory: "2Gi"
-    diskSpace: "10Gi"
+  diskSpace: "10Gi"
   scheduling:
     affinity: {}
     tolerations: []
