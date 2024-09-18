@@ -7,9 +7,11 @@ metadata:
     {{- toYaml .Values.exporter.metadata.selectorLabels | nindent 4 }}
 spec:
   replicas: {{ .Values.exporter.replicas }}
+  strategy:
+    {{- toYaml .Values.exporter.updateStrategy | nindent 4 }}
   selector:
     matchLabels:
-      {{- toYaml .Values.clusterServer.metadata.selectorLabels | nindent 6 }}
+      {{- toYaml .Values.exporter.metadata.selectorLabels | nindent 6 }}
   template:
     metadata:
       {{- with .Values.exporter.metadata.podAnnotations }}

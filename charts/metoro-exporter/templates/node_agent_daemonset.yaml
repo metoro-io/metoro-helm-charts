@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: {{ .Values.nodeAgent.name }}
+  name: {{ .Values.nodeAgent.metadata.name }}
   labels:
-    {{- toYaml .Values.nodeAgent.selectorLabels | nindent 4 }}
+    {{- toYaml .Values.nodeAgent.metadata.selectorLabels | nindent 4 }}
 spec:
   {{- with .Values.nodeAgent.updateStrategy }}
   updateStrategy:
@@ -11,17 +11,17 @@ spec:
   {{- end }}
   selector:
     matchLabels:
-      {{- toYaml .Values.nodeAgent.selectorLabels | nindent 6 }}
+      {{- toYaml .Values.nodeAgent.metadata.selectorLabels | nindent 6 }}
   template:
     metadata:
       labels:
-      {{- toYaml .Values.nodeAgent.selectorLabels | nindent 8 }}
-        app: {{ .Values.nodeAgent.name }}
+      {{- toYaml .Values.nodeAgent.metadata.selectorLabels | nindent 8 }}
+        app: {{ .Values.nodeAgent.metadata.name }}
       annotations:
         prometheus.io/scrape: '{{ .Values.nodeAgent.prometheus.scrape | default true}}'
         prometheus.io/port: '{{ .Values.nodeAgent.prometheus.port }}'
-        {{- if .Values.nodeAgent.annotations }}
-        {{- toYaml .Values.nodeAgent.annotations | nindent 8 }}
+        {{- if .Values.nodeAgent.metadata.podAnnotations }}
+        {{- toYaml .Values.nodeAgent.metadata.podAnnotations | nindent 8 }}
         {{- end }}
     spec:
       {{- with .Values.nodeAgent.image.imagePullSecrets }}
@@ -37,7 +37,7 @@ spec:
       priorityClassName: {{ .Values.nodeAgent.priorityClassName }}
       hostPID: true
       containers:
-        - name: {{ .Chart.Name }}
+        - name: {{ .Values.nodeAgent.metadata.name }}
           image: "{{ .Values.nodeAgent.image.repository }}:{{ .Values.nodeAgent.image.tag }}"
           args:
             - "--listen=0.0.0.0:{{ .Values.nodeAgent.prometheus.port }}"
@@ -47,14 +47,6 @@ spec:
           resources:
             {{- toYaml .Values.nodeAgent.resources | nindent 12 }}
           env:
-          {{- if .Values.nodeAgent.collectorEndpoint }}
-            - name: COLLECTOR_ENDPOINT
-              value: "{{ .Values.collectorEndpoint }}"
-          {{- end }}
-          {{- if .Values.nodeAgent.apiKey }}
-            - name: API_KEY
-              value: "{{ .Values.apiKey }}"
-          {{- end }}
             - name: TRACES_ENDPOINT
               value: {{ printf "http://%s:%d/v1/traces" .Values.clusterServer.services.openTelemetryCollector.metadata.name (.Values.clusterServer.services.openTelemetryCollector.ports.otel.port | int) }}
             - name: LOGS_ENDPOINT

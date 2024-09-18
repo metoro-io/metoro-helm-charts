@@ -6,6 +6,8 @@ exporter:
     selectorLabels:
       app.kubernetes.io/name: "metoro-exporter"
   replicas: 1
+  updateStrategy:
+    type: "RollingUpdate"
   envVars:
     mandatory:
       otlpUrl: "https://us-east.metoro.io/ingest/api/v1/otel"
@@ -51,13 +53,14 @@ exporter:
     tolerations: []
 # Node Agent
 nodeAgent:
-  name: "metoro-node-agent"
+  metadata:
+    name: "metoro-node-agent"
+    podAnnotations: {}
+    selectorLabels:
+      app.kubernetes.io/name: "metoro-node-agent"
   envVars:
     mandatory: {}
     userDefined: {}
-  selectorLabels:
-    app.kubernetes.io/name: "metoro-node-agent"
-  annotations: {}
   updateStrategy:
     type: "RollingUpdate"
   prometheus:
