@@ -33,6 +33,9 @@ exporter:
     name: "metoro-exporter-cluster-role-binding"
   services:
     metoroExporter:
+      # Note, if you change these values then you will need to update the prometheus remote write config to match
+      # This is an unfortunate limitation of helm (https://github.com/helm/helm/issues/6699)
+      # Search for "http://metoro-exporter/api/v1/send/prometheus/remote_write" in this file to find the relevant section
       name: "metoro-exporter"
       port: 80
   resources:
@@ -249,7 +252,7 @@ prometheus:
     remoteWrite:
       # TODO: Figure out how to have this be set
       #       - url: http://{{ tpl .Values.exporter.service.name . }}{{ tpl .Relase.Namespace . }}.svc.cluster.local{{ tpl .Values.exporter.service.port . }}/api/v1/send/prometheus/remote_write
-      - url: "http://metoro-exporter.metoro.svc.cluster.local/api/v1/send/prometheus/remote_write"
+      - url: "http://metoro-exporter/api/v1/send/prometheus/remote_write"
         queue_config:
           max_samples_per_send: 5000
     retention: "15m"
