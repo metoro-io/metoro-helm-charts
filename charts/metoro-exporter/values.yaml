@@ -52,6 +52,7 @@ exporter:
       name: "CHANGE_ME"
       secretKey: "AUTH_TOKEN"
   scheduling:
+    nodeSelector: {}
     affinity: {}
     tolerations: []
 # Node Agent
@@ -97,7 +98,8 @@ nodeAgent:
                    values:
                      - fargate
     tolerations: []
-# Cluster Agent
+    nodeSelector: {}
+# Cluster Server
 clusterServer:
   metadata:
     name: "metoro-cluster-server"
@@ -131,6 +133,7 @@ clusterServer:
   scheduling:
     affinity: {}
     tolerations: []
+    nodeSelector: {}
   services:
     clusterServer:
       metadata:
@@ -213,6 +216,7 @@ prometheus:
     enabled: false
   kube-state-metrics:
     enabled: true
+    nodeSelector: {}
   alertmanager:
     enabled: false
   serverFiles:
@@ -246,6 +250,7 @@ prometheus:
             target_label: instance
             action: replace
   server:
+    nodeSelector: {}
     fullnameOverride: "metoro-prometheus"
     global:
       scrape_interval: "1m"
@@ -287,6 +292,7 @@ clickhouse:
     limits:
       memory: "3Gi"
       cpu: "1"
+  nodeSelector: {}
   persistence:
     enabled: false
   extraOverrides: |

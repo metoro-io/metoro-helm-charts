@@ -67,6 +67,10 @@ spec:
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- with .Values.clusterServer.scheduling.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- with .Values.clusterServer.scheduling.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}

@@ -83,6 +83,10 @@ spec:
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- with .Values.exporter.scheduling.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- with .Values.exporter.scheduling.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
