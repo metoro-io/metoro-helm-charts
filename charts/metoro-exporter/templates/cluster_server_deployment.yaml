@@ -33,11 +33,11 @@ spec:
             - --data-dir=/data
           env:
             - name: BOOTSTRAP_CLICKHOUSE_ADDRESS
-              value: {{ printf "%s:%s" (.Values.clickhouse.service.name) (.Values.clickhouse.service.ports.tcp | toString ) }}
+              value: {{ printf "%s:%s" (.Values.clickhouse.fullnameOverride) (.Values.clickhouse.service.ports.tcp | toString ) }}
             - name: BOOTSTRAP_CLICKHOUSE_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.clickhouse.secret.name }}
+                  name: {{ .Values.clickhouse.fullnameOverride }}
                   key: "admin-password"
             - name: BOOTSTRAP_CLICKHOUSE_USER
               value: {{ .Values.clusterServer.envVars.mandatory.clickhouseUsername }}

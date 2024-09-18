@@ -99,7 +99,6 @@ clusterServer:
       clickhouseDatabase: "default"
       clickhouseUsername: "default"
     userDefined: {}
-
   image:
     repository: index.docker.io/metoro/metoro-cluster-server
     tag: "stable"

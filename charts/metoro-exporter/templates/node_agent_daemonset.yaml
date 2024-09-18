@@ -3,7 +3,7 @@ kind: DaemonSet
 metadata:
   name: {{ .Values.nodeAgent.name }}
   labels:
-    {{- .Values.nodeAgent.selectorLabels | nindent 4 }}
+    {{- toYaml .Values.nodeAgent.selectorLabels | nindent 4 }}
 spec:
   {{- with .Values.nodeAgent.updateStrategy }}
   updateStrategy:
@@ -11,11 +11,11 @@ spec:
   {{- end }}
   selector:
     matchLabels:
-      {{- .Values.nodeAgent.selectorLabels | nindent 6 }}
+      {{- toYaml .Values.nodeAgent.selectorLabels | nindent 6 }}
   template:
     metadata:
       labels:
-      {{- .Values.nodeAgent.selectorLabels | nindent 8 }}
+      {{- toYaml .Values.nodeAgent.selectorLabels | nindent 8 }}
         app: {{ .Values.nodeAgent.name }}
       annotations:
         prometheus.io/scrape: '{{ .Values.nodeAgent.prometheus.scrape | default true}}'
@@ -30,7 +30,7 @@ spec:
       {{- end }}
       {{- if .Values.nodeAgent.scheduling.affinity }}
       affinity:
-        {{- include .Values.nodeAgent.scheduling.affinity | nindent 8 }}
+        {{- toYaml .Values.nodeAgent.scheduling.affinity | nindent 8 }}
       {{- end }}
       tolerations:
         - operator: Exists
@@ -55,18 +55,12 @@ spec:
             - name: API_KEY
               value: "{{ .Values.apiKey }}"
           {{- end }}
-          {{- if .Values.nodeAgent.envVars.mandatory.tracesEndpoint }}
             - name: TRACES_ENDPOINT
-              value: "{{ .Values.nodeAgent.envVars.mandatory.tracesEndpoint }}"
-          {{- end }}
-          {{- if .Values.nodeAgent.envVars.mandatory.logsEndpoint }}
+              value: {{ printf "http://%s:%d/v1/traces" .Values.clusterServer.services.openTelemetryCollector.metadata.name (.Values.clusterServer.services.openTelemetryCollector.ports.otel | int) }}
             - name: LOGS_ENDPOINT
-              value: "{{ .Values.nodeAgent.envVars.mandatory.logsEndpoint }}"
-          {{- end }}
-          {{- if .Values.nodeAgent.envVars.mandatory.profilesEndpoint }}
+              value: {{ printf "http://%s:%d/v1/logs" .Values.clusterServer.services.openTelemetryCollector.metadata.name (.Values.clusterServer.services.openTelemetryCollector.ports.otel | int) }}
             - name: PROFILES_ENDPOINT
-              value: "{{ .Values.nodeAgent.envVars.mandatory.profilesEndpoint }}"
-          {{- end }}
+              value: {{ printf "http://%s:%d/v1/profiles" .Values.clusterServer.services.openTelemetryCollector.metadata.name (.Values.clusterServer.services.openTelemetryCollector.ports.otel | int) }}
           {{ with .Values.nodeAgent.envVars.userDefined }}
           {{- . | toYaml | nindent 12 }}
           {{- end }}

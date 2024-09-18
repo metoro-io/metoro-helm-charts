@@ -47,19 +47,19 @@ spec:
                   name: {{ .Values.exporter.secret.name }}
                   key: AUTH_TOKEN
             - name: COROOT_CLICKHOUSE_URL
-              value: {{ printf "%s.%s.svc.cluster.local:%s" .Values.clickhouse.fullnameOverride .Release.Namespace .Values.clickhouse.service.ports.tcp }}
+              value: {{ printf "%s.%s.svc.cluster.local:%d" .Values.clickhouse.fullnameOverride .Release.Namespace (.Values.clickhouse.service.ports.tcp | int)  }}
             - name: COROOT_CLICKHOUSE_USER
               value: {{ .Values.clickhouse.auth.username }}
             - name: COROOT_CLICKHOUSE_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name:  metoro-exporter-clickhouse
+                  name: {{ .Values.clickhouse.fullnameOverride }}
                   key: admin-password
             - name: COROOT_CLICKHOUSE_DATABASE
               # This is not settable via the clickhouse chart so it is hardcoded
               value: "default"
             - name: COROOT_PROMETHEUS_URL
-              value: {{ printf "http://%s.%s.svc.cluster.local:%s" .Values.prometheus.server.fullnameOverride .Release.Namespace .Values.prometheus.server.servicePort }}
+              value: {{ printf "http://%s.%s.svc.cluster.local:%d" .Values.prometheus.server.fullnameOverride .Release.Namespace (.Values.prometheus.server.service.servicePort | int) }}
             - name: GIN_MODE
               value: release
             {{ if not .Values.exporter.shouldDropMetoroData }}
