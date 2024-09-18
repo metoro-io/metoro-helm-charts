@@ -278,15 +278,35 @@ coroot:
         limits:
           memory: "3Gi"
           cpu: "1"
-  clickhouse:
-    enabled: true
-    server:
-      resources:
-        requests:
-          memory: "1Gi"
-          cpu: "100m"
-        limits:
-          memory: "3Gi"
-          cpu: "1"
-    persistence:
-      enabled: false
+clickhouse:
+  enabled: true
+  replicaCount: 1
+  shards: 1
+  zookeeper:
+    enabled: false
+  auth:
+    existingSecret: ""
+    existingSecretKey: ""
+  server:
+    # These resources are tuned for a typical deployment. Around 200k requests per node per hour. Reach out for help tuning these values.
+    resources:
+      requests:
+        memory: "1Gi"
+        cpu: "100m"
+      limits:
+        memory: "3Gi"
+        cpu: "1"
+  persistence:
+    enabled: false
+  extraOverrides: |
+    <clickhouse>
+      <asynchronous_metric_log remove="1"/>
+      <metric_log remove="1"/>
+      <query_log remove="1" />
+      <query_thread_log remove="1" />
+      <query_views_log remove="1" />
+      <part_log remove="1"/>
+      <text_log remove="1" />
+      <trace_log remove="1"/>
+      <opentelemetry_span_log remove="1"/>
+    </clickhouse>
