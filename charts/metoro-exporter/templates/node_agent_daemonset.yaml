@@ -28,9 +28,9 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if .Values.nodeAgent.affinity }}
+      {{- if .Values.nodeAgent.scheduling.affinity }}
       affinity:
-        {{- include .Values.nodeAgent.affinity | nindent 8 }}
+        {{- include .Values.nodeAgent.scheduling.affinity | nindent 8 }}
       {{- end }}
       tolerations:
         - operator: Exists
@@ -55,17 +55,20 @@ spec:
             - name: API_KEY
               value: "{{ .Values.apiKey }}"
           {{- end }}
-          {{- if .Values.nodeAgent.envVars.tracesEndpoint }}
+          {{- if .Values.nodeAgent.envVars.mandatory.tracesEndpoint }}
             - name: TRACES_ENDPOINT
-              value: "{{ .Values.nodeAgent.envVars.tracesEndpoint }}"
+              value: "{{ .Values.nodeAgent.envVars.mandatory.tracesEndpoint }}"
           {{- end }}
-          {{- if .Values.nodeAgent.envVars.logsEndpoint }}
+          {{- if .Values.nodeAgent.envVars.mandatory.logsEndpoint }}
             - name: LOGS_ENDPOINT
-              value: "{{ .Values.nodeAgent.envVars.logsEndpoint }}"
+              value: "{{ .Values.nodeAgent.envVars.mandatory.logsEndpoint }}"
           {{- end }}
-          {{- if .Values.nodeAgent.envVars.profilesEndpoint }}
+          {{- if .Values.nodeAgent.envVars.mandatory.profilesEndpoint }}
             - name: PROFILES_ENDPOINT
-              value: "{{ .Values.nodeAgent.envVars.profilesEndpoint }}"
+              value: "{{ .Values.nodeAgent.envVars.mandatory.profilesEndpoint }}"
+          {{- end }}
+          {{ with .Values.nodeAgent.envVars.userDefined }}
+          {{- . | toYaml | nindent 12 }}
           {{- end }}
           ports:
             - containerPort: {{ .Values.nodeAgent.prometheus.port }}
