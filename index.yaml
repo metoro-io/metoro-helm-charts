@@ -3,6 +3,29 @@ entries:
   metoro-exporter:
   - apiVersion: v2
     appVersion: 0.432.0
+    created: "2024-09-21T08:53:17.812270125Z"
+    dependencies:
+    - condition: prometheus.enabled
+      name: prometheus
+      repository: https://prometheus-community.github.io/helm-charts
+      version: 25.27.0
+    - condition: clickhouse.enabled
+      name: clickhouse
+      repository: https://charts.bitnami.com/bitnami
+      version: 3.1.6
+    - condition: otelInstrumentation.enabled
+      name: opentelemetry-operator
+      repository: https://open-telemetry.github.io/opentelemetry-helm-charts
+      version: 0.69.0
+    description: A helm chart for the Metoro Exporter
+    digest: 931458580813f6071f2e43a4903a1a70b7e0147cd7c3b431edf559151eda5a4b
+    name: metoro-exporter
+    type: application
+    urls:
+    - https://github.com/metoro-io/metoro-helm-charts/releases/download/metoro-exporter-0.454.0/metoro-exporter-0.454.0.tgz
+    version: 0.454.0
+  - apiVersion: v2
+    appVersion: 0.432.0
     created: "2024-09-18T21:57:33.453616623Z"
     dependencies:
     - condition: prometheus.enabled
@@ -525,4 +548,4 @@ entries:
     urls:
     - https://github.com/metoro-io/metoro-helm-charts/releases/download/metoro-exporter-0.62.0/metoro-exporter-0.62.0.tgz
     version: 0.62.0
-generated: "2024-09-18T21:57:33.453867786Z"
+generated: "2024-09-21T08:53:17.812781271Z"
