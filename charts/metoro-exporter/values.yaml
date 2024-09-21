@@ -69,7 +69,8 @@ nodeAgent:
     type: "RollingUpdate"
   prometheus:
     scrape: true
-    port: "80"
+    # Port numbers below 1024 are often blocked. If you change this port, make sure it is open.
+    port: "8080"
   image:
     repository: index.docker.io/metoro/metoro-node-agent
     tag: "stable"
