@@ -16,7 +16,7 @@ spec:
     metadata:
       labels:
       {{- toYaml .Values.nodeAgent.metadata.selectorLabels | nindent 8 }}
-        app: {{ .Values.nodeAgent.metadata.name }}
+        app: metoro-node-agent
       annotations:
         prometheus.io/scrape: '{{ .Values.nodeAgent.prometheus.scrape | default true}}'
         prometheus.io/port: '{{ .Values.nodeAgent.prometheus.port }}'
