@@ -104,6 +104,7 @@ nodeAgent:
 # Valkey
 valkey:
   enabled: true
+  architecture: standalone
   master:
     resourcesPreset: "medium"
     persistence:

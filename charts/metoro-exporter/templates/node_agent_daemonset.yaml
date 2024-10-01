@@ -52,11 +52,11 @@ spec:
             {{- toYaml .Values.nodeAgent.resources | nindent 12 }}
           env:
             - name: TRACES_ENDPOINT
-              value: {{ printf "http://%s:%d/v1/traces" .Values.clusterServer.services.openTelemetryCollector.metadata.name (.Values.clusterServer.services.openTelemetryCollector.ports.otel.port | int) }}
+              value: {{ printf "http://%s:%d/v1/traces" .Values.exporter.services.metoroExporter.name (.Values.exporter.services.metoroExporter.port | int) }}
             - name: LOGS_ENDPOINT
-              value: {{ printf "http://%s:%d/v1/logs" .Values.clusterServer.services.openTelemetryCollector.metadata.name (.Values.clusterServer.services.openTelemetryCollector.ports.otel.port | int) }}
+              value: {{ printf "http://%s:%d/v1/logs" .Values.exporter.services.metoroExporter.name (.Values.exporter.services.metoroExporter.port | int)  }}
             - name: PROFILES_ENDPOINT
-              value: {{ printf "http://%s:%d/v1/profiles" .Values.clusterServer.services.openTelemetryCollector.metadata.name (.Values.clusterServer.services.openTelemetryCollector.ports.otel.port | int) }}
+              value: {{ printf "http://%s:%d/v1/profiles" .Values.exporter.services.metoroExporter.name (.Values.exporter.services.metoroExporter.port | int) }}
           {{ with .Values.nodeAgent.envVars.userDefined }}
           {{- . | toYaml | nindent 12 }}
           {{- end }}

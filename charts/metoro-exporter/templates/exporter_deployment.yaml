@@ -52,20 +52,6 @@ spec:
                   name: {{ .Values.exporter.secret.externalSecret.name }}
                   key: {{ .Values.exporter.secret.externalSecret.secretKey }}
                   {{- end }}
-            - name: COROOT_CLICKHOUSE_URL
-              value: {{ printf "%s.%s.svc.cluster.local:%d" .Values.clickhouse.fullnameOverride .Release.Namespace (.Values.clickhouse.service.ports.tcp | int)  }}
-            - name: COROOT_CLICKHOUSE_USER
-              value: {{ .Values.clickhouse.auth.username }}
-            - name: COROOT_CLICKHOUSE_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.clickhouse.fullnameOverride }}
-                  key: admin-password
-            - name: COROOT_CLICKHOUSE_DATABASE
-              # This is not settable via the clickhouse chart so it is hardcoded
-              value: "default"
-            - name: COROOT_PROMETHEUS_URL
-              value: {{ printf "http://%s.%s.svc.cluster.local:%d" .Values.prometheus.server.fullnameOverride .Release.Namespace (.Values.prometheus.server.service.servicePort | int) }}
             - name: GIN_MODE
               value: release
             - name: SHOULD_DROP_METORO_DATA
