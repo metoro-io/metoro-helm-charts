@@ -102,6 +102,7 @@ nodeAgent:
 valkey:
   enabled: true
   architecture: standalone
+  fullnameOverride: "metoro-valkey"
   master:
     resourcesPreset: "medium"
     persistence:
