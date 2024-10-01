@@ -33,9 +33,6 @@ exporter:
     name: "metoro-exporter-cluster-role-binding"
   services:
     metoroExporter:
-      # Note, if you change these values then you will need to update the prometheus remote write config to match
-      # This is an unfortunate limitation of helm (https://github.com/helm/helm/issues/6699)
-      # Search for "http://metoro-exporter/api/v1/send/prometheus/remote_write" in this file to find the relevant section
       name: "metoro-exporter"
       port: 80
   resources:
