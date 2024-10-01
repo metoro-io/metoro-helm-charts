@@ -100,62 +100,14 @@ nodeAgent:
                      - fargate
     tolerations: []
     nodeSelector: {}
-# Cluster Server
-clusterServer:
-  metadata:
-    name: "metoro-cluster-server"
-    podAnnotations: {}
-    selectorLabels:
-      app.kubernetes.io/name: "metoro-cluster-server"
-  replicas: 1
-  updateStrategy:
-    type: "RollingUpdate"
-  envVars:
-    mandatory:
-      clickhouseDatabase: "default"
-      clickhouseUsername: "default"
-    userDefined: {}
-  image:
-    repository: index.docker.io/metoro/metoro-cluster-server
-    tag: "stable"
-    # This should be kept as Always in the vast majority of cases. The cluster-server restarts itself each day in order to pick up the latest agent image.
-    # If this is set to anything else, the cluster server will fall behind and miss out on new features, bug fixes and security patches.
-    pullPolicy: "Always"
-    imagePullSecrets: [ ]
-  # The below resources are tuned for a typical deployment. Around 200k requests per node per hour. Reach out for help tuning these values.
-  resources:
-    requests:
-      cpu: "100m"
-      memory: "1Gi"
-    limits:
-      cpu: "1"
-      memory: "2Gi"
-  diskSpace: "10Gi"
-  scheduling:
-    affinity: {}
-    tolerations: []
-    nodeSelector: {}
-  services:
-    clusterServer:
-      metadata:
-        name: "metoro-cluster-server"
-        annotations: {}
-        labels:
-          app.kubernetes.io/name: "metoro-cluster-server"
-      ports:
-        http:
-          name: http
-          port: 8080
-    openTelemetryCollector:
-      metadata:
-        name: "metoro-opentelemetry-collector"
-        annotations: {}
-        labels:
-          app.kubernetes.io/name: "metoro-opentelemetry-collector"
-      ports:
-        otel:
-          name: otel
-          port: 4318
+
+# Valkey
+valkey:
+  enabled: true
+  master:
+    resourcesPreset: "medium"
+    persistence:
+      enabled: false
 
 # Otel Instrumentation
 instrumentationWebhook:
@@ -178,7 +130,7 @@ instrumentationWebhook:
       recreate: false
       certPeriodDays: 3650
     certManager:
-        enabled: false
+      enabled: false
     name: "metoro-instrumentation-webhook.metoro.io"
   serviceAccount:
     name: "metoro-instrumentation-webhook"
@@ -207,104 +159,3 @@ opentelemetry-operator:
       repository: otel/opentelemetry-collector-k8s
     extraArgs:
       - "--enable-go-instrumentation=true"
-
-# Prometheus
-prometheus:
-  enabled: true
-  prometheus-node-exporter:
-   enabled: false
-  prometheus-pushgateway:
-    enabled: false
-  kube-state-metrics:
-    enabled: true
-    nodeSelector: {}
-  alertmanager:
-    enabled: false
-  serverFiles:
-    prometheus.yml:
-      scrape_configs:
-      - job_name: 'metoro-node-agent'
-        honor_labels: true
-        kubernetes_sd_configs:
-          - role: pod
-        relabel_configs:
-          - source_labels: [ __meta_kubernetes_pod_label_app]
-            action: keep
-            regex: metoro-node-agent
-          - source_labels: [ __meta_kubernetes_pod_annotation_prometheus_io_scheme ]
-            action: replace
-            regex: (https?)
-            target_label: __scheme__
-          - source_labels: [ __meta_kubernetes_pod_annotation_prometheus_io_path ]
-            action: replace
-            target_label: __metrics_path__
-            regex: (.+)
-          - source_labels: [ __address__, __meta_kubernetes_pod_annotation_prometheus_io_port ]
-            action: replace
-            regex: (.+?)(?::\d+)?;(\d+)
-            replacement: $1:$2
-            target_label: __address__
-          - source_labels: [ __meta_kubernetes_pod_phase ]
-            regex: Pending|Succeeded|Failed|Completed
-            action: drop
-          - source_labels: [__meta_kubernetes_pod_node_name]
-            target_label: instance
-            action: replace
-  server:
-    nodeSelector: {}
-    fullnameOverride: "metoro-prometheus"
-    global:
-      scrape_interval: "1m"
-    remoteWrite:
-      - url: "http://metoro-exporter/api/v1/send/prometheus/remote_write"
-        queue_config:
-          max_samples_per_send: 5000
-    retention: "15m"
-    extraFlags:
-      - web.enable-remote-write-receiver
-    persistentVolume:
-      enabled: false
-    # These resources are tuned for a typical deployment. Around 200k requests per node per hour. Reach out for help tuning these values.
-    resources:
-      requests:
-        memory: "1Gi"
-        cpu: "100m"
-      limits:
-        memory: "3Gi"
-        cpu: "1"
-
-# Clickhouse
-clickhouse:
-  fullnameOverride: "metoro-clickhouse"
-  enabled: true
-  replicaCount: 1
-  shards: 1
-  zookeeper:
-    enabled: false
-  auth:
-    username: "default"
-    existingSecret: ""
-    existingSecretKey: ""
-    # These resources are tuned for a typical deployment. Around 200k requests per node per hour. Reach out for help tuning these values.
-  resources:
-    requests:
-      memory: "1Gi"
-      cpu: "100m"
-    limits:
-      memory: "3Gi"
-      cpu: "1"
-  nodeSelector: {}
-  persistence:
-    enabled: false
-  extraOverrides: |
-    <clickhouse>
-      <asynchronous_metric_log remove="1"/>
-      <metric_log remove="1"/>
-      <query_log remove="1" />
-      <query_thread_log remove="1" />
-      <query_views_log remove="1" />
-      <part_log remove="1"/>
-      <text_log remove="1" />
-      <trace_log remove="1"/>
-      <opentelemetry_span_log remove="1"/>
-    </clickhouse>
