@@ -101,6 +101,8 @@ nodeAgent:
 # Valkey
 valkey:
   enabled: true
+  auth:
+    existingSecret: "valkey-secret"
   architecture: standalone
   fullnameOverride: "metoro-valkey"
   master:
