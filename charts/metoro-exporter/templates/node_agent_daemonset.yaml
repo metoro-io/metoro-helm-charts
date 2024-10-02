@@ -58,7 +58,7 @@ spec:
             - name: PROFILES_ENDPOINT
               value: {{ printf "http://%s:%d/v1/profiles" .Values.exporter.services.metoroExporter.name (.Values.exporter.services.metoroExporter.port | int) }}
             - name: REDIS_ADDRESS
-              value: {{ printf "%s-master:%d" .Values.redis.fullnameOverride (.Values.valkey.master.service.ports.valkey | int) }}
+              value: {{ printf "%s-master:%d" .Values.redis.fullnameOverride (.Values.redis.master.service.ports.redis | int) }}
             - name: REDIS_PASSWORD
               valueFrom:
                   secretKeyRef:
