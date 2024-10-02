@@ -54,6 +54,11 @@ spec:
                   {{- end }}
             - name: REDIS_URL
               value: {{printf "%s-master:%d" .Values.redis.fullnameOverride (.Values.redis.master.service.ports.redis | int)}}
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.redis.auth.existingSecret }}
+                  key: password
             - name: GIN_MODE
               value: release
             - name: SHOULD_DROP_METORO_DATA
