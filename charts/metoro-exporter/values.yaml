@@ -103,6 +103,7 @@ redis:
   auth:
     enabled: true
     existingSecret: "redis-secret"
+    existingSecretPasswordKey: "password"
   architecture: standalone
   fullnameOverride: "metoro-redis"
   master:
