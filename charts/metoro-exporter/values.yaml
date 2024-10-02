@@ -101,7 +101,7 @@ nodeAgent:
 redis:
   enabled: true
   auth:
-    enabled: false
+    enabled: true
     existingSecret: "redis-secret"
   architecture: standalone
   fullnameOverride: "metoro-redis"
