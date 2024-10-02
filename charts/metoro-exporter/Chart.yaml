@@ -12,7 +12,7 @@ dependencies:
     version: 0.69.0
     repository: https://open-telemetry.github.io/opentelemetry-helm-charts
     condition: otelInstrumentation.enabled
-  - name: valkey
-    version: 0.3.18
+  - name: redis
+    version: 20.1.6
     repository: https://charts.bitnami.com/bitnami
-    condition: valkey.enabled
+    condition: redis.enabled

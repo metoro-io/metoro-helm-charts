@@ -99,16 +99,17 @@ nodeAgent:
     nodeSelector: {}
 
 # Valkey
-valkey:
+redis:
   enabled: true
   auth:
-    existingSecret: "valkey-secret"
+    enabled: false
+    existingSecret: "redis-secret"
   architecture: standalone
-  fullnameOverride: "metoro-valkey"
+  fullnameOverride: "metoro-redis"
   master:
     resourcesPreset: "medium"
     persistence:
-      enabled: false
+      enabled: true
 
 # Otel Instrumentation
 instrumentationWebhook:
