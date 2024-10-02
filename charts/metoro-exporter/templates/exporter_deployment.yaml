@@ -52,8 +52,8 @@ spec:
                   name: {{ .Values.exporter.secret.externalSecret.name }}
                   key: {{ .Values.exporter.secret.externalSecret.secretKey }}
                   {{- end }}
-            - name: VALKEY_URL
-              value: {{printf "%s-master:%d" .Values.valkey.fullnameOverride (.Values.valkey.master.service.ports.valkey | int)}}
+            - name: REDIS_URL
+              value: {{printf "%s-master:%d" .Values.redis.fullnameOverride (.Values.valkey.master.service.ports.valkey | int)}}
             - name: GIN_MODE
               value: release
             - name: SHOULD_DROP_METORO_DATA

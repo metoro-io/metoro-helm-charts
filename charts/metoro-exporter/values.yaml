@@ -98,7 +98,6 @@ nodeAgent:
     tolerations: []
     nodeSelector: {}
 
-# Valkey
 redis:
   enabled: true
   auth:
