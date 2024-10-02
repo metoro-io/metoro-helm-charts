@@ -43,10 +43,6 @@ spec:
       containers:
         - name: {{ .Values.nodeAgent.metadata.name }}
           image: "{{ .Values.nodeAgent.image.repository }}:{{ .Values.nodeAgent.image.tag }}"
-          args:
-            - "--listen=0.0.0.0:{{ .Values.nodeAgent.prometheus.port }}"
-            - "--cgroupfs-root"
-            - "/host/sys/fs/cgroup"
           imagePullPolicy: {{ .Values.nodeAgent.image.pullPolicy }}
           resources:
             {{- toYaml .Values.nodeAgent.resources | nindent 12 }}
