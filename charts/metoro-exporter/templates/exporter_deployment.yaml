@@ -38,6 +38,14 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: status.hostIP
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_UID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.uid
             - name: METORO_OTLP_URL
               value: {{ .Values.exporter.envVars.mandatory.otlpUrl }}
             - name: METORO_API_SERVER_URL
