@@ -52,6 +52,13 @@ exporter:
     nodeSelector: {}
     affinity: {}
     tolerations: []
+  autoscaling:
+    horizontalPodAutoscaler:
+      enabled: true
+      name: "metoro-exporter-hpa"
+      minReplicas: 2
+      maxReplicas: 10
+      targetCPUUtilizationPercentage: 70
 # Node Agent
 nodeAgent:
   metadata:
