@@ -37,10 +37,11 @@ exporter:
       port: 80
   resources:
     limits:
-      cpu: "1"
+      cpu: "2"
+      memory: "4Gi"
     requests:
-      cpu: "100m"
-      memory: "1Gi"
+      cpu: "1"
+      memory: "2Gi"
   secret:
     name: "exporter-secret"
     bearerToken: "CHANGE_ME"
@@ -86,10 +87,10 @@ nodeAgent:
   resources:
     limits:
       cpu: "1"
-      memory: "1Gi"
+      memory: "2Gi"
     requests:
-      cpu: "100m"
-      memory: "100Mi"
+      cpu: "300m"
+      memory: "300Mi"
   priorityClassName: ""
   scheduling:
     affinity:
