@@ -22,7 +22,7 @@ interesting values.
 | `nodeAgent.scheduling.nodeSelector` | map  | `{}`    | Node selector for the metoro node agent pods (be careful as this could cause some applications not to be instrumented) |
 | `nodeAgent.scheduling.tolerations`  | list | `[]`    | Tolerations for the metoro node agent pods (be careful as this could cause some applications not to be instrumented)  |
 | `nodeAgent.scheduling.affinity`     | map  | `{}`    | Affinity for the metoro node agent pods (be careful as this could cause some applications not to be instrumented)     |
-| `redis.master.nodeSelector`         | map  | `""`    | Node selector for the exporter redis instance                                                                         |
+| `redis.master.nodeSelector`         | map  | `{}`    | Node selector for the exporter redis instance                                                                         |
 | `redis.master.tolerations`          | list | `[]`    | Tolerations for the exporter redis instance                                                                           |
 | `redis.master.affinity`             | map  | `{}`    | Affinity for the exporter redis instance                                                                              |
 
