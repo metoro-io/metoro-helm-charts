@@ -43,20 +43,23 @@ spec:
       containers:
         - name: {{ .Values.nodeAgent.metadata.name }}
           image: "{{ .Values.nodeAgent.image.repository }}:{{ .Values.nodeAgent.image.tag }}"
-          args:
-            - "--listen=0.0.0.0:{{ .Values.nodeAgent.prometheus.port }}"
-            - "--cgroupfs-root"
-            - "/host/sys/fs/cgroup"
           imagePullPolicy: {{ .Values.nodeAgent.image.pullPolicy }}
           resources:
             {{- toYaml .Values.nodeAgent.resources | nindent 12 }}
           env:
             - name: TRACES_ENDPOINT
-              value: {{ printf "http://%s:%d/v1/traces" .Values.clusterServer.services.openTelemetryCollector.metadata.name (.Values.clusterServer.services.openTelemetryCollector.ports.otel.port | int) }}
+              value: {{ printf "http://%s:%d/v1/traces" .Values.exporter.services.metoroExporter.name (.Values.exporter.services.metoroExporter.port | int) }}
             - name: LOGS_ENDPOINT
-              value: {{ printf "http://%s:%d/v1/logs" .Values.clusterServer.services.openTelemetryCollector.metadata.name (.Values.clusterServer.services.openTelemetryCollector.ports.otel.port | int) }}
+              value: {{ printf "http://%s:%d/v1/logs" .Values.exporter.services.metoroExporter.name (.Values.exporter.services.metoroExporter.port | int)  }}
             - name: PROFILES_ENDPOINT
-              value: {{ printf "http://%s:%d/v1/profiles" .Values.clusterServer.services.openTelemetryCollector.metadata.name (.Values.clusterServer.services.openTelemetryCollector.ports.otel.port | int) }}
+              value: {{ printf "http://%s:%d/v1/profiles" .Values.exporter.services.metoroExporter.name (.Values.exporter.services.metoroExporter.port | int) }}
+            - name: REDIS_ADDRESS
+              value: {{ printf "%s-master:%d" .Values.redis.fullnameOverride (.Values.redis.master.service.ports.redis | int) }}
+            - name: REDIS_PASSWORD
+              valueFrom:
+                  secretKeyRef:
+                    name: {{ .Values.redis.auth.existingSecret }}
+                    key: password
           {{ with .Values.nodeAgent.envVars.userDefined }}
           {{- . | toYaml | nindent 12 }}
           {{- end }}

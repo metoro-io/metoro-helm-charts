@@ -27,6 +27,19 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ .Values.exporter.serviceAccount.name }}
+      # We want to attempt to put the exporter on different nodes so that if a node goes down, we don't become unavailable
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app.kubernetes.io/name
+                      operator: In
+                      values:
+                        - exporter
+                topologyKey: kubernetes.io/hostname
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.exporter.image.repository }}:{{ .Values.exporter.image.tag | default .Chart.AppVersion }}"
@@ -38,6 +51,14 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: status.hostIP
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_UID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.uid
             - name: METORO_OTLP_URL
               value: {{ .Values.exporter.envVars.mandatory.otlpUrl }}
             - name: METORO_API_SERVER_URL
@@ -52,20 +73,13 @@ spec:
                   name: {{ .Values.exporter.secret.externalSecret.name }}
                   key: {{ .Values.exporter.secret.externalSecret.secretKey }}
                   {{- end }}
-            - name: COROOT_CLICKHOUSE_URL
-              value: {{ printf "%s.%s.svc.cluster.local:%d" .Values.clickhouse.fullnameOverride .Release.Namespace (.Values.clickhouse.service.ports.tcp | int)  }}
-            - name: COROOT_CLICKHOUSE_USER
-              value: {{ .Values.clickhouse.auth.username }}
-            - name: COROOT_CLICKHOUSE_PASSWORD
+            - name: REDIS_URL
+              value: {{printf "%s-master:%d" .Values.redis.fullnameOverride (.Values.redis.master.service.ports.redis | int)}}
+            - name: REDIS_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.clickhouse.fullnameOverride }}
-                  key: admin-password
-            - name: COROOT_CLICKHOUSE_DATABASE
-              # This is not settable via the clickhouse chart so it is hardcoded
-              value: "default"
-            - name: COROOT_PROMETHEUS_URL
-              value: {{ printf "http://%s.%s.svc.cluster.local:%d" .Values.prometheus.server.fullnameOverride .Release.Namespace (.Values.prometheus.server.service.servicePort | int) }}
+                  name: {{ .Values.redis.auth.existingSecret }}
+                  key: password
             - name: GIN_MODE
               value: release
             - name: SHOULD_DROP_METORO_DATA
