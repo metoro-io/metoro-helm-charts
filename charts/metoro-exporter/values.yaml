@@ -5,7 +5,7 @@ exporter:
     podAnnotations: {}
     selectorLabels:
       app.kubernetes.io/name: "metoro-exporter"
-  replicas: 1
+  replicas: 2
   updateStrategy:
     type: "RollingUpdate"
   envVars:
