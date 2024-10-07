@@ -15,7 +15,7 @@ exporter:
       shouldDropMetoroData: "true"
     userDefined: {}
   image:
-    tag: "stable"
+    tag: "v2-stable"
     repository: quay.io/metoro/metoro-exporter
     pullPolicy: "Always"
     imagePullSecrets: [ ]
@@ -78,7 +78,7 @@ nodeAgent:
     port: "8080"
   image:
     repository: quay.io/metoro/metoro-node-agent
-    tag: "stable"
+    tag: "v2-stable"
     # This should be kept as Always in the vast majority of cases. The node agent restarts itself each day in order to pick up the latest agent image.
     # If this is set to anything else, the node agent will fall behind and miss out on new features, bug fixes and security patches.
     pullPolicy: "Always"
