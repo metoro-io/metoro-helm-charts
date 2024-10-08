@@ -47,6 +47,8 @@ spec:
           resources:
             {{- toYaml .Values.nodeAgent.resources | nindent 12 }}
           env:
+            - name: DISABLE_LOG_PARSING
+              value: {{ printf "\"%t\"" (not .Values.nodeAgent.logExport.enabled) }}
             - name: TRACES_ENDPOINT
               value: {{ printf "http://%s:%d/v1/traces" .Values.exporter.services.metoroExporter.name (.Values.exporter.services.metoroExporter.port | int) }}
             - name: LOGS_ENDPOINT
