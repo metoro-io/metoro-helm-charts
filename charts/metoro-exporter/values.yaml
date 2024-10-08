@@ -92,6 +92,8 @@ nodeAgent:
       cpu: "300m"
       memory: "300Mi"
   priorityClassName: ""
+  logExport:
+    enabled: true
   scheduling:
     affinity:
        nodeAffinity:
