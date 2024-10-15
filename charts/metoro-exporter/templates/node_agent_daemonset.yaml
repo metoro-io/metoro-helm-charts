@@ -47,6 +47,11 @@ spec:
           resources:
             {{- toYaml .Values.nodeAgent.resources | nindent 12 }}
           env:
+            - name: GOMAXPROCS
+              valueFrom:
+                resourceFieldRef:
+                 resource: limits.cpu
+                 divisor: "1"
             - name: DISABLE_LOG_PARSING
               value: {{ printf "\"%t\"" (not .Values.nodeAgent.logExport.enabled) }}
             - name: TRACES_ENDPOINT
