@@ -37,7 +37,11 @@ spec:
         {{- toYaml .Values.nodeAgent.scheduling.nodeSelector | nindent 8 }}
       {{- end }}
       tolerations:
+        {{- if .Values.nodeAgent.scheduling.tolerations }}
         {{- toYaml .Values.nodeAgent.scheduling.tolerations | nindent 8 }}
+        {{ else }}
+        - operator: Exists
+        {{- end }}
       priorityClassName: {{ .Values.nodeAgent.priorityClassName }}
       hostPID: true
       containers:
