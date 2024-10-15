@@ -45,6 +45,11 @@ spec:
           image: "{{ .Values.exporter.image.repository }}:{{ .Values.exporter.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.exporter.image.pullPolicy }}
           env:
+            - name: GOMAXPROCS
+              valueFrom:
+                resourceFieldRef:
+                  resource: limits.cpu
+                  divisor: "1"
             - name: VERSION
               value: {{ .Chart.AppVersion }}
             - name: HOST_IP
