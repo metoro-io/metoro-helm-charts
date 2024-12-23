@@ -69,9 +69,9 @@ spec:
             {{- if .Values.redis.auth.enabled }}
             - name: REDIS_PASSWORD
               valueFrom:
-                 secretKeyRef:
-                   name: {{ .Values.redis.auth.existingSecret }}
-                   key: password
+                  secretKeyRef:
+                    name: {{ .Values.redis.auth.existingSecret }}
+                    key: password
             {{- end }}
           {{ with .Values.nodeAgent.envVars.userDefined }}
           {{- . | toYaml | nindent 12 }}
