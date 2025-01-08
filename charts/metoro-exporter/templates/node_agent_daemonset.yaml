@@ -95,6 +95,32 @@ spec:
             - mountPath: /tmp
               name: tmp
               readOnly: false
+            # Required to access containerd, docker, crio, podman sockets
+            - mountPath: /var/run/containerd/containerd.sock
+              name: containerd-sock
+            - mountPath: /var/run/docker.sock
+              name: docker-sock
+            - mountPath: /var/run/crio/crio.sock
+              name: crio-sock
+            - mountPath: /var/run/podman/podman.sock
+              name: podman-sock
+            # System paths
+            - mountPath: /sys
+              name: sys
+              readOnly: true
+            # Runtime specific paths
+            - mountPath: /var/lib/containerd
+              name: containerd
+              readOnly: true
+            - mountPath: /var/lib/docker
+              name: docker
+              readOnly: true
+            - mountPath: /var/lib/kubelet
+              name: kubelet
+              readOnly: true
+            - mountPath: /var/lib/containers
+              name: containers
+              readOnly: true
       volumes:
         - hostPath:
             path: /sys/fs/cgroup
@@ -107,3 +133,33 @@ spec:
           name: debugfs
         - emptyDir: { }
           name: tmp
+        # Container runtime socket volumes
+        - hostPath:
+            path: /var/run/containerd/containerd.sock
+          name: containerd-sock
+        - hostPath:
+            path: /var/run/docker.sock
+          name: docker-sock
+        - hostPath:
+            path: /var/run/crio/crio.sock
+          name: crio-sock
+        - hostPath:
+            path: /var/run/podman/podman.sock
+          name: podman-sock
+        # System volumes
+        - hostPath:
+            path: /sys
+          name: sys
+        # Runtime specific volumes
+        - hostPath:
+            path: /var/lib/containerd
+          name: containerd
+        - hostPath:
+            path: /var/lib/docker
+          name: docker
+        - hostPath:
+            path: /var/lib/kubelet
+          name: kubelet
+        - hostPath:
+            path: /var/lib/containers
+          name: containers
