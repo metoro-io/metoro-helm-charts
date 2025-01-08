@@ -136,39 +136,30 @@ spec:
         # Container runtime socket volumes
         - hostPath:
             path: /var/run/containerd/containerd.sock
-            type: ""
           name: containerd-sock
         - hostPath:
             path: /var/run/docker.sock
-            type: ""
           name: docker-sock
         - hostPath:
             path: /var/run/crio/crio.sock
-            type: ""
           name: crio-sock
         - hostPath:
             path: /var/run/podman/podman.sock
-            type: ""
           name: podman-sock
         # System volumes
         - hostPath:
             path: /sys
-            type: ""
           name: sys
         # Runtime specific volumes
         - hostPath:
             path: /var/lib/containerd
-            type: ""
           name: containerd
         - hostPath:
             path: /var/lib/docker
-            type: ""
           name: docker
         - hostPath:
             path: /var/lib/kubelet
-            type: ""
           name: kubelet
         - hostPath:
             path: /var/lib/containers
-            type: ""
           name: containers
