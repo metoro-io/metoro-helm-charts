@@ -4,8 +4,9 @@ description: A helm chart for the Metoro Exporter
 
 type: application
 
-version: 0.463.0
+version: 0.464.0
 appVersion: 0.919.0
+
 
 dependencies:
   - name: opentelemetry-operator
