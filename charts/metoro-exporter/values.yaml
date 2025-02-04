@@ -111,7 +111,7 @@ nodeAgent:
 redis:
   enabled: true
   auth:
-    enabled: true
+    enabled: false
     existingSecret: "redis-secret"
     existingSecretPasswordKey: "password"
   architecture: standalone
