@@ -1,0 +1,9 @@
+This repository stores the helm charts for metoro.
+The main helm chart is the metoro exporter. The metoro exporter consistents of the following components:
+* A daemonset called the metoro-node-agent. This runs on each host and collects information about the containers running there.
+  The daemonset collets metrics, traces and logs from the hosts containers and sends them to the metoro exporter.
+* A deployment called the metoro-exporer. This is a stateless component that takes request from the node agents and then sends the data to the metoro-hub.
+  The metoro hub is an out of cluster component which receives, stores the data and makes it available for querying. The default hub is in the cloud hosted by Metoro but its also possible to run the hub on prem.
+* Redis. A redis cluster handles storing some cluster metadata and acts as a replicated distributed queue for some communication of metadata between the node agents and the exporter.
+
+When making changes to this repository, you should be mindful of availability. There should always be at least one instance of the exporter running and there should be a quorum of redis pods available.

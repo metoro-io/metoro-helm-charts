@@ -8,6 +8,10 @@ exporter:
   replicas: 2
   updateStrategy:
     type: "RollingUpdate"
+  # Pod Disruption Budget configuration
+  podDisruptionBudget:
+    enabled: true
+    maxUnavailable: 1
   envVars:
     mandatory:
       otlpUrl: "https://us-east.metoro.io/ingest/api/v1/otel"
