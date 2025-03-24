@@ -4,10 +4,10 @@ kind: PodDisruptionBudget
 metadata:
   name: {{ .Values.exporter.metadata.name }}
   labels:
-    {{- include "metoro-exporter.labels" . | nindent 4 }}
+    {{- include "metoro.labels" . | nindent 4 }}
 spec:
   maxUnavailable: {{ .Values.exporter.podDisruptionBudget.maxUnavailable }}
   selector:
     matchLabels:
-      {{- include "metoro-exporter.selectorLabels" . | nindent 6 }}
+      {{- include "metoro.selectorLabels" . | nindent 6 }}
 {{- end }} 
