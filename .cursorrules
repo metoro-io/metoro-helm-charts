@@ -7,3 +7,4 @@ The main helm chart is the metoro exporter. The metoro exporter consistents of t
 * Redis. A redis cluster handles storing some cluster metadata and acts as a replicated distributed queue for some communication of metadata between the node agents and the exporter.
 
 When making changes to this repository, you should be mindful of availability. There should always be at least one instance of the exporter running and there should be a quorum of redis pods available.
+Additionally, you should bear in mind that metoro can be ran on single node clusters for dev environments. Therefore we shouldn't fail in this case.
