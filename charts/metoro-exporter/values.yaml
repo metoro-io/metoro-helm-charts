@@ -127,28 +127,11 @@ redis:
     resourcesPreset: "micro"
     persistence:
       enabled: true
-    podDisruptionBudget:
-      enabled: true
-      maxUnavailable: 1
-    topologySpreadConstraints:
-      - maxSkew: 1
-        topologyKey: kubernetes.io/hostname
-        whenUnsatisfied: ScheduleAnyway
-        labelSelector:
-          matchLabels:
-            app.kubernetes.io/name: redis
   replica:
     replicaCount: 2
     resourcesPreset: "micro"
     persistence:
       enabled: true
-    topologySpreadConstraints:
-      - maxSkew: 1
-        topologyKey: kubernetes.io/hostname
-        whenUnsatisfied: ScheduleAnyway
-        labelSelector:
-          matchLabels:
-            app.kubernetes.io/name: redis
 
 # Otel Instrumentation
 instrumentationWebhook:
