@@ -3,6 +3,30 @@ entries:
   metoro-exporter:
   - apiVersion: v2
     appVersion: 0.919.0
+    created: "2025-03-25T14:06:57.741366615Z"
+    dependencies:
+    - condition: otelInstrumentation.enabled
+      name: opentelemetry-operator
+      repository: https://open-telemetry.github.io/opentelemetry-helm-charts
+      version: 0.69.0
+    - condition: redis.enabled
+      name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: 20.1.6
+    - alias: redisCluster
+      condition: redisCluster.enabled
+      name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: 20.1.6
+    description: A helm chart for the Metoro Exporter
+    digest: 1506729c776a53f91c9a0d8300a710d6a48211e667460b3126cb4abfbe8083c9
+    name: metoro-exporter
+    type: application
+    urls:
+    - https://github.com/metoro-io/metoro-helm-charts/releases/download/metoro-exporter-0.465.0/metoro-exporter-0.465.0.tgz
+    version: 0.465.0
+  - apiVersion: v2
+    appVersion: 0.919.0
     created: "2025-02-04T20:41:05.352054592Z"
     dependencies:
     - condition: otelInstrumentation.enabled
@@ -742,4 +766,4 @@ entries:
     urls:
     - https://github.com/metoro-io/metoro-helm-charts/releases/download/metoro-exporter-0.62.0/metoro-exporter-0.62.0.tgz
     version: 0.62.0
-generated: "2025-02-04T20:41:05.352479347Z"
+generated: "2025-03-25T14:06:57.741758945Z"
