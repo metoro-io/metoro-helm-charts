@@ -119,17 +119,33 @@ redis:
     existingSecret: "redis-secret"
     existingSecretPasswordKey: "password"
   architecture: "replication"
+  rbac:
+    create: true
+  sentinel:
+    enabled: true
+    quorum: 2
+    service:
+      createMaster: true
+    startupProbe:
+      initialDelaySeconds: 5
+    livenessProbe:
+      initialDelaySeconds: 5
+    readinessProbe:
+      initialDelaySeconds: 5
   fullnameOverride: "metoro-redis"
   pdb:
     create: true
     maxUnavailable: 1
-  master:
-    resourcesPreset: "micro"
-    persistence:
-      enabled: true
   replica:
-    replicaCount: 2
+    replicaCount: 3
     resourcesPreset: "micro"
+    automountServiceAccountToken: true
+    livenessProbe:
+      initialDelaySeconds: 5
+    readinessProbe:
+      initialDelaySeconds: 5
+    startupProbe:
+      initialDelaySeconds: 5
     persistence:
       enabled: true
 
