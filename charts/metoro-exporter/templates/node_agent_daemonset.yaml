@@ -65,12 +65,22 @@ spec:
             - name: PROFILES_ENDPOINT
               value: {{ printf "http://%s:%d/v1/profiles" .Values.exporter.services.metoroExporter.name (.Values.exporter.services.metoroExporter.port | int) }}
             - name: REDIS_ADDRESS
+              {{- if .Values.redis.enabled }}
               value: {{ printf "%s-master:%d" .Values.redis.fullnameOverride (.Values.redis.master.service.ports.redis | int) }}
+              {{- else if .Values.redisCluster.enabled }}
+              value: {{ printf "%s-master:%d" .Values.redisCluster.fullnameOverride (.Values.redisCluster.master.service.ports.redis | int) }}
+              {{- end }}
             {{- if .Values.redis.auth.enabled }}
             - name: REDIS_PASSWORD
               valueFrom:
                   secretKeyRef:
                     name: {{ .Values.redis.auth.existingSecret }}
+                    key: password
+            {{ else if .Values.redisCluster.auth.enabled }}
+            - name: REDIS_PASSWORD
+              valueFrom:
+                  secretKeyRef:
+                    name: {{ .Values.redisCluster.auth.existingSecret }}
                     key: password
             {{- end }}
           {{ with .Values.nodeAgent.envVars.userDefined }}

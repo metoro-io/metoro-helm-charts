@@ -118,6 +118,19 @@ redis:
     enabled: false
     existingSecret: "redis-secret"
     existingSecretPasswordKey: "password"
+  architecture: standalone
+  fullnameOverride: "metoro-redis"
+  master:
+    resourcesPreset: "medium"
+    persistence:
+      enabled: true
+
+redisCluster:
+  enabled: false
+  auth:
+    enabled: false
+    existingSecret: "redis-secret"
+    existingSecretPasswordKey: "password"
   architecture: "replication"
   rbac:
     create: true
