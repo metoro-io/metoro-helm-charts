@@ -79,7 +79,7 @@ spec:
                   key: {{ .Values.exporter.secret.externalSecret.secretKey }}
                   {{- end }}
             - name: REDIS_URL
-              value: {{printf "%s-master:%d" .Values.redis.fullnameOverride (.Values.redis.master.service.ports.redis | int) }}
+              value: {{printf "%s-master:%d" .Values.redis.fullnameOverride (.Values.redis.master.service.ports.redis | int)}}
             {{- if .Values.redis.auth.enabled }}
             - name: REDIS_PASSWORD
               valueFrom:
