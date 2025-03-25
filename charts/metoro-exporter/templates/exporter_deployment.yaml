@@ -79,7 +79,6 @@ spec:
                   key: {{ .Values.exporter.secret.externalSecret.secretKey }}
                   {{- end }}
             - name: REDIS_URL
-              # value: {{printf "redis+sentinel://%s-headless:%d/mymaster" .Values.redis.fullnameOverride (.Values.redis.sentinel.service.ports.redis | int)}}
               value: {{printf "%s-master:%d" .Values.redis.fullnameOverride (.Values.redis.master.service.ports.redis | int) }}
             {{- if .Values.redis.auth.enabled }}
             - name: REDIS_PASSWORD
