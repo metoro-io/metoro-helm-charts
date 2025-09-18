@@ -120,6 +120,11 @@ redis:
     existingSecretPasswordKey: "password"
   architecture: standalone
   fullnameOverride: "metoro-redis"
+  image:
+    registry: "quay.io"
+    repository: "metoro/redis"
+    tag: "7.4.0-debian-12-r4"
+    pullPolicy: "IfNotPresent"
   master:
     resourcesPreset: "medium"
     persistence:
