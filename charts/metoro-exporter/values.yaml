@@ -127,6 +127,12 @@ redis:
     pullPolicy: "IfNotPresent"
   master:
     resourcesPreset: "medium"
+    startupProbe:
+      initialDelaySeconds: 5
+    livenessProbe:
+      initialDelaySeconds: 5
+    readinessProbe:
+      initialDelaySeconds: 5
     persistence:
       enabled: true
 
