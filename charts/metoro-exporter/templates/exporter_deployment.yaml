@@ -109,6 +109,21 @@ spec:
             {{- end }}
           resources:
             {{- toYaml .Values.exporter.resources | nindent 12 }}
+          # failureThreshold is 24 (120s) because the exporter takes time to populate caches on startup
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 24
+          readinessProbe:
+            httpGet:
+              path: /api/v1/readiness
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 24
           volumeMounts:
             - name: {{ .Values.exporter.configMap.name }}
               mountPath: /etc/exporter
