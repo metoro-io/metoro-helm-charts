@@ -64,6 +64,10 @@ exporter:
       minReplicas: 2
       maxReplicas: 10
       targetCPUUtilizationPercentage: 70
+  gracefulShutdown:
+    enabled: true
+    # Time to wait for inflight requests to complete after SIGTERM
+    terminationGracePeriodSeconds: 15
 # Node Agent
 nodeAgent:
   metadata:
