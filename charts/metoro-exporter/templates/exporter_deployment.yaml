@@ -27,6 +27,9 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ .Values.exporter.serviceAccount.name }}
+      {{- if .Values.exporter.gracefulShutdown.enabled }}
+      terminationGracePeriodSeconds: {{ .Values.exporter.gracefulShutdown.terminationGracePeriodSeconds }}
+      {{- end }}
       # We want to attempt to put the exporter on different nodes so that if a node goes down, we don't become unavailable
       affinity:
         podAntiAffinity:
