@@ -104,6 +104,10 @@ spec:
               value: release
             - name: SHOULD_DROP_METORO_DATA
               value: {{ .Values.exporter.envVars.mandatory.shouldDropMetoroData | quote }}
+            {{- if .Values.exporter.envVars.optional.k8sResources }}
+            - name: METORO_K8S_RESOURCES
+              value: {{ .Values.exporter.envVars.optional.k8sResources | quote }}
+            {{- end }}
             {{- with .Values.exporter.envVars.userDefined }}
             {{- . | toYaml | nindent 12 }}
             {{- end }}

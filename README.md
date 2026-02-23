@@ -25,5 +25,5 @@ interesting values.
 | `redis.master.nodeSelector`         | map  | `{}`    | Node selector for the exporter redis instance                                                                         |
 | `redis.master.tolerations`          | list | `[]`    | Tolerations for the exporter redis instance                                                                           |
 | `redis.master.affinity`             | map  | `{}`    | Affinity for the exporter redis instance                                                                              |
-
+| `exporter.envVars.optional.k8sResources` | string | `""` | Optional comma-separated Kubernetes resource selectors passed to `METORO_K8S_RESOURCES`; leave empty to watch all supported resources |
 
