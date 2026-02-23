@@ -17,6 +17,10 @@ exporter:
       otlpUrl: "https://us-east.metoro.io/ingest/api/v1/otel"
       apiServerUrl: "https://us-east.metoro.io/api/v1/exporter"
       shouldDropMetoroData: "true"
+    optional:
+      # Comma-separated selectors for Kubernetes resources to watch (for example: "pod,service,deployment,ingress").
+      # Leave empty to watch all exporter-supported resources.
+      k8sResources: ""
     userDefined: {}
   image:
     tag: "v2-stable"
