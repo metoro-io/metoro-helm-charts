@@ -1,6 +1,0 @@
-apiVersion: v2
-name: opentelemetry-operator-crds
-description: OpenTelemetry Operator CRDs for Metoro exporter ServiceMonitor scraping
-type: application
-version: 0.69.0
-appVersion: 0.108.0

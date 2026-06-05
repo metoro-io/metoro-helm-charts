@@ -185,32 +185,42 @@ serviceMonitorScraping:
   enabled: false
 
   operator:
+    # Deprecated compatibility shim. ServiceMonitor scraping now renders direct
+    # Collector and Target Allocator resources, so no OpenTelemetry Operator is
+    # installed or required.
     install: false
 
   collector:
     mode: statefulset
     replicas: 1
-    upgradeStrategy: automatic
+    image:
+      repository: otel/opentelemetry-collector-k8s
+      tag: "0.108.0"
+      pullPolicy: IfNotPresent
+      imagePullSecrets: []
+    resources: {}
+    scheduling:
+      nodeSelector: {}
+      affinity: {}
+      tolerations: []
 
   targetAllocator:
     enabled: true
+    replicas: 1
+    image:
+      repository: ghcr.io/open-telemetry/opentelemetry-operator/target-allocator
+      tag: "0.108.0"
+      pullPolicy: IfNotPresent
+      imagePullSecrets: []
+    allocationStrategy: consistent-hashing
+    filterStrategy: relabel-config
+    resources: {}
+    scheduling:
+      nodeSelector: {}
+      affinity: {}
+      tolerations: []
     prometheusCR:
+      scrapeInterval: 30s
       serviceMonitorSelector: {}
       podMonitorSelector: {}
-      # Reserved until the pinned OpenTelemetry Operator dependency supports namespace selector fields.
       namespaceSelector: {}
-
-opentelemetry-operator:
-  crds:
-    create: false
-  admissionWebhooks:
-    create: false
-    certManager:
-      enabled: false
-    autoGenerateCert:
-      enabled: false
-  manager:
-    env:
-      ENABLE_WEBHOOKS: "false"
-    collectorImage:
-      repository: otel/opentelemetry-collector-k8s

@@ -63,6 +63,17 @@ Create the name of the service account to use
 
 
 {{/*
+Common non-selector labels for ServiceMonitor scraping resources.
+*/}}
+{{- define "metoro.serviceMonitorScraping.commonLabels" -}}
+helm.sh/chart: {{ include "metoro.chart" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
+
+{{/*
 Create the name of the ServiceMonitor scraping collector.
 */}}
 {{- define "metoro.serviceMonitorScraping.collectorName" -}}
@@ -70,8 +81,77 @@ Create the name of the ServiceMonitor scraping collector.
 {{- end }}
 
 {{/*
+Create the name of the ServiceMonitor scraping collector config map.
+*/}}
+{{- define "metoro.serviceMonitorScraping.collectorConfigMapName" -}}
+{{- printf "%s-config" (include "metoro.serviceMonitorScraping.collectorName" .) | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
+Create the name of the ServiceMonitor scraping collector headless service.
+*/}}
+{{- define "metoro.serviceMonitorScraping.collectorHeadlessServiceName" -}}
+{{- printf "%s-headless" (include "metoro.serviceMonitorScraping.collectorName" .) | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
+Create the service account name used by the ServiceMonitor scraping collector.
+*/}}
+{{- define "metoro.serviceMonitorScraping.collectorServiceAccountName" -}}
+{{- printf "%s-collector" (include "metoro.serviceMonitorScraping.collectorName" .) | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
+Create selector labels used by the ServiceMonitor scraping collector.
+*/}}
+{{- define "metoro.serviceMonitorScraping.collectorSelectorLabels" -}}
+app.kubernetes.io/name: {{ include "metoro.serviceMonitorScraping.collectorName" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/component: service-monitor-scraper
+{{- end }}
+
+{{/*
+Create the name used by the Target Allocator resources.
+*/}}
+{{- define "metoro.serviceMonitorScraping.targetAllocatorName" -}}
+{{- printf "%s-targetallocator" (include "metoro.serviceMonitorScraping.collectorName" .) | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
 Create the service account name used by the Target Allocator.
 */}}
 {{- define "metoro.serviceMonitorScraping.serviceAccountName" -}}
-{{- printf "%s-ta" (include "metoro.serviceMonitorScraping.collectorName" .) | trunc 63 | trimSuffix "-" }}
+{{- include "metoro.serviceMonitorScraping.targetAllocatorName" . }}
+{{- end }}
+
+{{/*
+Create selector labels used by the Target Allocator.
+*/}}
+{{- define "metoro.serviceMonitorScraping.targetAllocatorSelectorLabels" -}}
+app.kubernetes.io/name: {{ include "metoro.serviceMonitorScraping.targetAllocatorName" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/component: opentelemetry-targetallocator
+{{- end }}
+
+{{/*
+Render a Kubernetes LabelSelector for the Target Allocator config. The pinned
+Target Allocator version unmarshals LabelSelector fields using lower-case YAML
+field names.
+*/}}
+{{- define "metoro.serviceMonitorScraping.targetAllocatorLabelSelector" -}}
+{{- $selector := . | default dict -}}
+{{- $matchLabels := get $selector "matchLabels" | default (get $selector "matchlabels") -}}
+{{- $matchExpressions := get $selector "matchExpressions" | default (get $selector "matchexpressions") -}}
+{{- if or $matchLabels $matchExpressions -}}
+{{- with $matchLabels }}
+matchlabels:
+  {{- toYaml . | nindent 2 }}
+{{- end }}
+{{- with $matchExpressions }}
+matchexpressions:
+  {{- toYaml . | nindent 2 }}
+{{- end }}
+{{- else -}}
+{}
+{{- end -}}
 {{- end }}

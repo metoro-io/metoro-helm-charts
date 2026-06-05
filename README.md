@@ -29,41 +29,24 @@ interesting values.
 
 #### ServiceMonitor and PodMonitor scraping
 
-The exporter chart can optionally deploy an OpenTelemetry Collector managed by
-the OpenTelemetry Operator. The collector uses the Target Allocator to discover
-Prometheus Operator `ServiceMonitor` and `PodMonitor` resources, scrape those
-targets, and forward OTLP HTTP metrics to the in-cluster `metoro-exporter`
-service at `/api/v1/custom/otel/metrics`.
+The exporter chart can optionally deploy a pinned OpenTelemetry Collector and
+Target Allocator directly. The Target Allocator discovers Prometheus Operator
+`ServiceMonitor` and `PodMonitor` resources, the collector scrapes those
+targets, and metrics are forwarded to the in-cluster `metoro-exporter` service
+at `/api/v1/custom/otel/metrics`.
 
-If the cluster already has an OpenTelemetry Operator installed:
-
-```yaml
-serviceMonitorScraping:
-  enabled: true
-  operator:
-    install: false
-```
-
-If the chart should install the OpenTelemetry Operator as a dependency:
+Enable scraping with:
 
 ```yaml
 serviceMonitorScraping:
   enabled: true
-  operator:
-    install: true
 ```
 
-The `operator.install` default is `false` because Helm dependency conditions
-cannot express `serviceMonitorScraping.enabled && operator.install`. Default
-installs do not install OpenTelemetry CRDs. When `operator.install=true`, a
-small CRD-only dependency installs the pinned OpenTelemetry Operator CRDs before
-the collector custom resource is rendered; the operator dependency's templated
-CRDs stay disabled to avoid Helm ownership conflicts with pre-existing CRDs.
-When the chart installs the operator, it disables the operator admission
-webhooks because this scraping path does not use auto-instrumentation. A cluster
-using `ServiceMonitor` or `PodMonitor` scraping must still already have the
-`monitoring.coreos.com/v1` CRDs installed; this chart does not install the
-Prometheus Operator or its CRDs.
+This path does not install the OpenTelemetry Operator, OpenTelemetry CRDs, or
+admission webhooks. A cluster using `ServiceMonitor` or `PodMonitor` scraping
+must already have the `monitoring.coreos.com/v1` CRDs installed; this chart does
+not install the Prometheus Operator or its CRDs. The legacy
+`serviceMonitorScraping.operator.install` value is ignored if set.
 
 By default, the Target Allocator matches all `ServiceMonitor` and `PodMonitor`
 objects:
@@ -72,7 +55,7 @@ objects:
 serviceMonitorScraping:
   enabled: true
   collector:
-    upgradeStrategy: automatic
+    replicas: 1
   targetAllocator:
     prometheusCR:
       serviceMonitorSelector: {}
@@ -80,16 +63,13 @@ serviceMonitorScraping:
       namespaceSelector: {}
 ```
 
-The pinned OpenTelemetry Operator dependency currently supports the
-`serviceMonitorSelector` and `podMonitorSelector` fields. The `namespaceSelector`
-value is reserved for namespace selector support when the operator dependency is
-updated; for now, namespace selection should be expressed in the
-`ServiceMonitor` or `PodMonitor` resources themselves.
+The single `namespaceSelector` value is applied to both service monitor and pod
+monitor namespace selectors in the Target Allocator config.
 
 Useful Target Allocator checks:
 
 ```bash
-kubectl -n metoro get opentelemetrycollector
+kubectl -n metoro get pods,statefulset,deploy,svc,cm -l app.kubernetes.io/component=service-monitor-scraper
 kubectl -n metoro get svc -l app.kubernetes.io/component=opentelemetry-targetallocator
 kubectl -n metoro port-forward svc/<collector-name>-targetallocator 8080:80
 curl localhost:8080/jobs | jq
