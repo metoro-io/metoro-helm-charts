@@ -72,6 +72,22 @@ spec:
       port: 8888
       targetPort: metrics
 ---
+{{- if .Values.serviceMonitorScraping.collector.podDisruptionBudget.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ $collectorName }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "metoro.serviceMonitorScraping.commonLabels" . | nindent 4 }}
+    {{- include "metoro.serviceMonitorScraping.collectorSelectorLabels" . | nindent 4 }}
+spec:
+  maxUnavailable: {{ .Values.serviceMonitorScraping.collector.podDisruptionBudget.maxUnavailable }}
+  selector:
+    matchLabels:
+      {{- include "metoro.serviceMonitorScraping.collectorSelectorLabels" . | nindent 6 }}
+---
+{{- end }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -103,9 +119,19 @@ spec:
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.serviceMonitorScraping.collector.scheduling.affinity }}
+      {{- if .Values.serviceMonitorScraping.collector.scheduling.affinity }}
       affinity:
-        {{- toYaml . | nindent 8 }}
+        {{- toYaml .Values.serviceMonitorScraping.collector.scheduling.affinity | nindent 8 }}
+      {{- else if dig "podAntiAffinity" "enabled" false .Values.serviceMonitorScraping.collector.scheduling }}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    {{- include "metoro.serviceMonitorScraping.collectorSelectorLabels" . | nindent 20 }}
+                topologyKey: kubernetes.io/hostname
       {{- end }}
       {{- with .Values.serviceMonitorScraping.collector.scheduling.tolerations }}
       tolerations:
@@ -177,6 +203,22 @@ metadata:
     {{- include "metoro.serviceMonitorScraping.commonLabels" . | nindent 4 }}
     {{- include "metoro.serviceMonitorScraping.targetAllocatorSelectorLabels" . | nindent 4 }}
 ---
+{{- if .Values.serviceMonitorScraping.targetAllocator.podDisruptionBudget.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ $targetAllocatorName }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "metoro.serviceMonitorScraping.commonLabels" . | nindent 4 }}
+    {{- include "metoro.serviceMonitorScraping.targetAllocatorSelectorLabels" . | nindent 4 }}
+spec:
+  maxUnavailable: {{ .Values.serviceMonitorScraping.targetAllocator.podDisruptionBudget.maxUnavailable }}
+  selector:
+    matchLabels:
+      {{- include "metoro.serviceMonitorScraping.targetAllocatorSelectorLabels" . | nindent 6 }}
+---
+{{- end }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -207,9 +249,19 @@ spec:
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.serviceMonitorScraping.targetAllocator.scheduling.affinity }}
+      {{- if .Values.serviceMonitorScraping.targetAllocator.scheduling.affinity }}
       affinity:
-        {{- toYaml . | nindent 8 }}
+        {{- toYaml .Values.serviceMonitorScraping.targetAllocator.scheduling.affinity | nindent 8 }}
+      {{- else if dig "podAntiAffinity" "enabled" false .Values.serviceMonitorScraping.targetAllocator.scheduling }}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    {{- include "metoro.serviceMonitorScraping.targetAllocatorSelectorLabels" . | nindent 20 }}
+                topologyKey: kubernetes.io/hostname
       {{- end }}
       {{- with .Values.serviceMonitorScraping.targetAllocator.scheduling.tolerations }}
       tolerations:

@@ -55,13 +55,21 @@ objects:
 serviceMonitorScraping:
   enabled: true
   collector:
-    replicas: 1
+    replicas: 2
   targetAllocator:
+    replicas: 2
     prometheusCR:
       serviceMonitorSelector: {}
       podMonitorSelector: {}
       namespaceSelector: {}
 ```
+
+The collector and Target Allocator default to two replicas, each with a
+`PodDisruptionBudget` allowing one unavailable pod. Their default scheduling
+also adds preferred pod anti-affinity on `kubernetes.io/hostname` so replicas
+spread across nodes when capacity allows. Set the relevant
+`serviceMonitorScraping.*.scheduling.affinity` value to fully override that
+default affinity.
 
 The single `namespaceSelector` value is applied to both service monitor and pod
 monitor namespace selectors in the Target Allocator config.
