@@ -198,8 +198,8 @@ serviceMonitorScraping:
       maxUnavailable: 1
     image:
       repository: quay.io/metoro/opentelemetry-collector
-      tag: "0.108.0"
-      pullPolicy: IfNotPresent
+      tag: "stable"
+      pullPolicy: Always
       imagePullSecrets: []
     resources: {}
     scheduling:
@@ -217,8 +217,8 @@ serviceMonitorScraping:
       maxUnavailable: 1
     image:
       repository: quay.io/metoro/opentelemetry-target-allocator
-      tag: "0.108.0"
-      pullPolicy: IfNotPresent
+      tag: "stable"
+      pullPolicy: Always
       imagePullSecrets: []
     allocationStrategy: consistent-hashing
     filterStrategy: relabel-config
