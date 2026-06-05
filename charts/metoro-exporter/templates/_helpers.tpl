@@ -114,7 +114,9 @@ app.kubernetes.io/component: service-monitor-scraper
 Create the name used by the Target Allocator resources.
 */}}
 {{- define "metoro.serviceMonitorScraping.targetAllocatorName" -}}
-{{- printf "%s-targetallocator" (include "metoro.serviceMonitorScraping.collectorName" .) | trunc 63 | trimSuffix "-" }}
+{{- $suffix := "-targetallocator" -}}
+{{- $prefixLength := int (sub 63 (len $suffix)) -}}
+{{- printf "%s%s" ((include "metoro.serviceMonitorScraping.collectorName" .) | trunc $prefixLength | trimSuffix "-") $suffix | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
