@@ -98,29 +98,3 @@ kubectl -n metoro get svc -l app.kubernetes.io/component=opentelemetry-targetall
 kubectl -n metoro port-forward svc/<collector-name>-targetallocator 8080:80
 curl localhost:8080/jobs | jq
 ```
-
-## On-Prem Monitored Cluster Fixtures
-
-Use `scripts/onprem/install-monitored-apps` to install small applications into
-the on-prem monitored cluster for exporter scraping tests. By default it uses
-the monitored kubeconfig from the sibling `metoro-observability` checkout,
-installs the Prometheus Operator CRDs, and installs `podinfo` with a
-`ServiceMonitor`.
-
-```bash
-scripts/onprem/install-monitored-apps
-```
-
-Override the kubeconfig when needed:
-
-```bash
-ONPREM_MONITORED_KUBECONFIG=/path/to/monitored-kubeconfig \
-  scripts/onprem/install-monitored-apps
-```
-
-Verify the installed fixture:
-
-```bash
-KUBECONFIG=/path/to/monitored-kubeconfig kubectl get servicemonitor -A
-KUBECONFIG=/path/to/monitored-kubeconfig kubectl -n servicemonitor-fixtures get pods,svc,servicemonitor
-```
