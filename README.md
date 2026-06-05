@@ -27,6 +27,66 @@ interesting values.
 | `redis.master.affinity`             | map  | `{}`    | Affinity for the exporter redis instance                                                                              |
 | `exporter.envVars.optional.k8sResources` | string | `""` | Optional comma-separated Kubernetes resource selectors passed to `METORO_K8S_RESOURCES`; leave empty to watch all supported resources |
 
+#### ServiceMonitor and PodMonitor scraping
+
+The exporter chart can optionally deploy an OpenTelemetry Collector managed by
+the OpenTelemetry Operator. The collector uses the Target Allocator to discover
+Prometheus Operator `ServiceMonitor` and `PodMonitor` resources, scrape those
+targets, and forward OTLP HTTP metrics to the in-cluster `metoro-exporter`
+service at `/api/v1/custom/otel/v1/metrics`.
+
+If the cluster already has an OpenTelemetry Operator installed:
+
+```yaml
+serviceMonitorScraping:
+  enabled: true
+  operator:
+    install: false
+```
+
+If the chart should install the OpenTelemetry Operator as a dependency:
+
+```yaml
+serviceMonitorScraping:
+  enabled: true
+  operator:
+    install: true
+```
+
+The `operator.install` default is `false` because Helm dependency conditions
+cannot express `serviceMonitorScraping.enabled && operator.install`. A cluster
+using `ServiceMonitor` or `PodMonitor` scraping must already have the
+`monitoring.coreos.com/v1` CRDs installed; this chart does not install the
+Prometheus Operator or its CRDs.
+
+By default, the Target Allocator matches all `ServiceMonitor` and `PodMonitor`
+objects:
+
+```yaml
+serviceMonitorScraping:
+  enabled: true
+  targetAllocator:
+    prometheusCR:
+      serviceMonitorSelector: {}
+      podMonitorSelector: {}
+      namespaceSelector: {}
+```
+
+The pinned OpenTelemetry Operator dependency currently supports the
+`serviceMonitorSelector` and `podMonitorSelector` fields. The `namespaceSelector`
+value is reserved for namespace selector support when the operator dependency is
+updated; for now, namespace selection should be expressed in the
+`ServiceMonitor` or `PodMonitor` resources themselves.
+
+Useful Target Allocator checks:
+
+```bash
+kubectl -n metoro get opentelemetrycollector
+kubectl -n metoro get svc -l app.kubernetes.io/component=opentelemetry-targetallocator
+kubectl -n metoro port-forward svc/<collector-name>-targetallocator 8080:80
+curl localhost:8080/jobs | jq
+```
+
 ## On-Prem Monitored Cluster Fixtures
 
 Use `scripts/onprem/install-monitored-apps` to install small applications into

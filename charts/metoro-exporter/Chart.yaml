@@ -12,7 +12,7 @@ dependencies:
   - name: opentelemetry-operator
     version: 0.69.0
     repository: https://open-telemetry.github.io/opentelemetry-helm-charts
-    condition: otelInstrumentation.enabled
+    condition: serviceMonitorScraping.operator.install
   - name: redis
     version: 20.1.6
     repository: https://charts.bitnami.com/bitnami

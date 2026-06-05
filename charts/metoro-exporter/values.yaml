@@ -181,46 +181,25 @@ redisCluster:
     persistence:
       enabled: true
 
-# Otel Instrumentation
-instrumentationWebhook:
+serviceMonitorScraping:
   enabled: false
-  secretName: "metoro-instrumentation-webhook-secret"
-  name: "metoro-instrumentation-webhook"
-  replicas: 2
-  image:
-    tag: "stable"
-    repository: quay.io/metoro/metoro-instrumentation-webhook
-    pullPolicy: "Always"
-  service:
-    name: "metoro-instrumentation-webhook"
-    port: 80
-    targetPort: 8080
-    type: "ClusterIP"
-  mutatingWebhookConfiguration:
-    autoGenerateCert:
-      enabled: true
-      recreate: false
-      certPeriodDays: 3650
-    certManager:
-      enabled: false
-    name: "metoro-instrumentation-webhook.metoro.io"
-  serviceAccount:
-    name: "metoro-instrumentation-webhook"
-  clusterRole:
-    name: "metoro-instrumentation-webhook-cluster-role"
-  clusterRoleBinding:
-    name: "metoro-instrumentation-webhook-cluster-role-binding"
-  resources:
-    limits:
-      cpu: "100m"
-      memory: "128Mi"
-    requests:
-      cpu: "10m"
-      memory: "64Mi"
-otelInstrumentation:
-  enabled: false
+
+  operator:
+    install: false
+
+  collector:
+    mode: statefulset
+    replicas: 1
+
+  targetAllocator:
+    enabled: true
+    prometheusCR:
+      serviceMonitorSelector: {}
+      podMonitorSelector: {}
+      # Reserved until the pinned OpenTelemetry Operator dependency supports namespace selector fields.
+      namespaceSelector: {}
+
 opentelemetry-operator:
-  enabled: false
   admissionWebhooks:
     certManager:
       enabled: false
@@ -229,5 +208,3 @@ opentelemetry-operator:
   manager:
     collectorImage:
       repository: otel/opentelemetry-collector-k8s
-    extraArgs:
-      - "--enable-go-instrumentation=true"

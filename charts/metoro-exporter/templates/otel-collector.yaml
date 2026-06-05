@@ -1,42 +1,126 @@
-{{- if .Values.otelInstrumentation.enabled -}}
+{{- if .Values.serviceMonitorScraping.enabled -}}
+{{- $collectorName := include "metoro.serviceMonitorScraping.collectorName" . -}}
+{{- $targetAllocatorServiceAccountName := include "metoro.serviceMonitorScraping.serviceAccountName" . -}}
+{{- $exporterEndpoint := printf "http://%s.%s.svc.cluster.local:%d/api/v1/custom/otel" .Values.exporter.services.metoroExporter.name .Release.Namespace (.Values.exporter.services.metoroExporter.port | int) -}}
 apiVersion: opentelemetry.io/v1beta1
 kind: OpenTelemetryCollector
 metadata:
-  name: metoro-otel
-  namespace: metoro
+  name: {{ $collectorName }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "metoro.labels" . | nindent 4 }}
 spec:
+  mode: {{ .Values.serviceMonitorScraping.collector.mode }}
+  replicas: {{ .Values.serviceMonitorScraping.collector.replicas }}
+  targetAllocator:
+    enabled: {{ .Values.serviceMonitorScraping.targetAllocator.enabled }}
+    {{- if .Values.serviceMonitorScraping.targetAllocator.enabled }}
+    serviceAccount: {{ $targetAllocatorServiceAccountName }}
+    prometheusCR:
+      enabled: true
+      serviceMonitorSelector:
+        {{- toYaml .Values.serviceMonitorScraping.targetAllocator.prometheusCR.serviceMonitorSelector | nindent 8 }}
+      podMonitorSelector:
+        {{- toYaml .Values.serviceMonitorScraping.targetAllocator.prometheusCR.podMonitorSelector | nindent 8 }}
+    {{- end }}
   config:
     receivers:
-      otlp:
-        protocols:
-          grpc:
-            endpoint: 0.0.0.0:4317
-          http:
-            endpoint: 0.0.0.0:4318
+      prometheus:
+        config: {}
     processors:
       batch:
         send_batch_size: 10000
         timeout: 10s
 
     exporters:
-      otlphttp:
-        endpoint: {{ printf "http://%s.%s.svc.cluster.local:%d" .Values.clusterServer.services.openTelemetryCollector.metadata.name .Release.Namespace (.Values.clusterServer.services.openTelemetryCollector.ports.otel.port | int) }}
-        tls:
-          insecure: true
-      debug: {}
+      otlphttp/metoro:
+        endpoint: {{ $exporterEndpoint | quote }}
 
     service:
       pipelines:
-        logs:
-          receivers: [otlp]
-          processors: [batch]
-          exporters: [debug]
         metrics:
-          receivers: [otlp]
+          receivers: [prometheus]
           processors: [batch]
-          exporters: [debug]
-        traces:
-          receivers: [otlp]
-          processors: [batch]
-          exporters: [otlphttp, debug]
+          exporters: [otlphttp/metoro]
+{{- if .Values.serviceMonitorScraping.targetAllocator.enabled }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ $targetAllocatorServiceAccountName }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "metoro.labels" . | nindent 4 }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ $targetAllocatorServiceAccountName }}
+  labels:
+    {{- include "metoro.labels" . | nindent 4 }}
+rules:
+  - apiGroups:
+      - monitoring.coreos.com
+    resources:
+      - servicemonitors
+      - podmonitors
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - namespaces
+      - nodes
+      - nodes/metrics
+      - services
+      - endpoints
+      - pods
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    verbs:
+      - get
+  - apiGroups:
+      - discovery.k8s.io
+    resources:
+      - endpointslices
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - networking.k8s.io
+    resources:
+      - ingresses
+    verbs:
+      - get
+      - list
+      - watch
+  - nonResourceURLs:
+      - /metrics
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ $targetAllocatorServiceAccountName }}
+  labels:
+    {{- include "metoro.labels" . | nindent 4 }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ $targetAllocatorServiceAccountName }}
+    namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: ClusterRole
+  name: {{ $targetAllocatorServiceAccountName }}
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}
 {{- end -}}
