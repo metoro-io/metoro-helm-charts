@@ -197,7 +197,7 @@ serviceMonitorScraping:
       enabled: true
       maxUnavailable: 1
     image:
-      repository: otel/opentelemetry-collector-k8s
+      repository: quay.io/metoro/opentelemetry-collector
       tag: "0.108.0"
       pullPolicy: IfNotPresent
       imagePullSecrets: []
@@ -216,7 +216,7 @@ serviceMonitorScraping:
       enabled: true
       maxUnavailable: 1
     image:
-      repository: ghcr.io/open-telemetry/opentelemetry-operator/target-allocator
+      repository: quay.io/metoro/opentelemetry-target-allocator
       tag: "0.108.0"
       pullPolicy: IfNotPresent
       imagePullSecrets: []
