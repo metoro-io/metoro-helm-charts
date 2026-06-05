@@ -54,20 +54,16 @@ serviceMonitorScraping:
 ```
 
 The `operator.install` default is `false` because Helm dependency conditions
-cannot express `serviceMonitorScraping.enabled && operator.install`. The chart
-vendors the OpenTelemetry Operator CRDs in `crds/` so a fresh cluster can be
-installed with one `helm upgrade --install`; Helm installs those CRDs before it
-renders the collector custom resource. When the chart installs the operator, it
-disables the operator admission webhooks because this scraping path does not use
-auto-instrumentation and the webhook service is not ready early enough for a
-single Helm transaction. A cluster using `ServiceMonitor` or `PodMonitor`
-scraping must still already have the `monitoring.coreos.com/v1` CRDs installed;
-this chart does not install the Prometheus Operator or its CRDs.
-
-Helm installs CRDs from `crds/` during fresh installs, but does not upgrade or
-backfill them into an already-created release. Existing releases created before
-these CRDs were added should apply `charts/metoro-exporter/crds` once before
-enabling `serviceMonitorScraping`, or reinstall the release.
+cannot express `serviceMonitorScraping.enabled && operator.install`. Default
+installs do not install OpenTelemetry CRDs. When `operator.install=true`, a
+small CRD-only dependency installs the pinned OpenTelemetry Operator CRDs before
+the collector custom resource is rendered; the operator dependency's templated
+CRDs stay disabled to avoid Helm ownership conflicts with pre-existing CRDs.
+When the chart installs the operator, it disables the operator admission
+webhooks because this scraping path does not use auto-instrumentation. A cluster
+using `ServiceMonitor` or `PodMonitor` scraping must still already have the
+`monitoring.coreos.com/v1` CRDs installed; this chart does not install the
+Prometheus Operator or its CRDs.
 
 By default, the Target Allocator matches all `ServiceMonitor` and `PodMonitor`
 objects:

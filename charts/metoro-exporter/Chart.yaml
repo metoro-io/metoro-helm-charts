@@ -9,6 +9,10 @@ appVersion: 0.2303.0
 
 
 dependencies:
+  - name: opentelemetry-operator-crds
+    version: 0.69.0
+    repository: file://crd-charts/opentelemetry-operator-crds
+    condition: serviceMonitorScraping.operator.install
   - name: opentelemetry-operator
     version: 0.69.0
     repository: https://open-telemetry.github.io/opentelemetry-helm-charts
