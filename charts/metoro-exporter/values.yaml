@@ -184,12 +184,6 @@ redisCluster:
 serviceMonitorScraping:
   enabled: false
 
-  operator:
-    # Deprecated compatibility shim. ServiceMonitor scraping now renders direct
-    # Collector and Target Allocator resources, so no OpenTelemetry Operator is
-    # installed or required.
-    install: false
-
   collector:
     mode: statefulset
     replicas: 2

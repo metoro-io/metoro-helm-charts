@@ -45,8 +45,7 @@ serviceMonitorScraping:
 This path does not install the OpenTelemetry Operator, OpenTelemetry CRDs, or
 admission webhooks. A cluster using `ServiceMonitor` or `PodMonitor` scraping
 must already have the `monitoring.coreos.com/v1` CRDs installed; this chart does
-not install the Prometheus Operator or its CRDs. The legacy
-`serviceMonitorScraping.operator.install` value is ignored if set.
+not install the Prometheus Operator or its CRDs.
 
 By default, the Target Allocator matches all `ServiceMonitor` and `PodMonitor`
 objects:
