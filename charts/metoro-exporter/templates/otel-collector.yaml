@@ -1,7 +1,7 @@
 {{- if .Values.serviceMonitorScraping.enabled -}}
 {{- $collectorName := include "metoro.serviceMonitorScraping.collectorName" . -}}
 {{- $targetAllocatorServiceAccountName := include "metoro.serviceMonitorScraping.serviceAccountName" . -}}
-{{- $exporterEndpoint := printf "http://%s.%s.svc.cluster.local:%d/api/v1/custom/otel" .Values.exporter.services.metoroExporter.name .Release.Namespace (.Values.exporter.services.metoroExporter.port | int) -}}
+{{- $exporterMetricsEndpoint := printf "http://%s.%s.svc.cluster.local:%d/api/v1/custom/otel/metrics" .Values.exporter.services.metoroExporter.name .Release.Namespace (.Values.exporter.services.metoroExporter.port | int) -}}
 apiVersion: opentelemetry.io/v1beta1
 kind: OpenTelemetryCollector
 metadata:
@@ -12,6 +12,7 @@ metadata:
 spec:
   mode: {{ .Values.serviceMonitorScraping.collector.mode }}
   replicas: {{ .Values.serviceMonitorScraping.collector.replicas }}
+  upgradeStrategy: {{ .Values.serviceMonitorScraping.collector.upgradeStrategy }}
   targetAllocator:
     enabled: {{ .Values.serviceMonitorScraping.targetAllocator.enabled }}
     {{- if .Values.serviceMonitorScraping.targetAllocator.enabled }}
@@ -26,7 +27,8 @@ spec:
   config:
     receivers:
       prometheus:
-        config: {}
+        config:
+          scrape_configs: []
     processors:
       batch:
         send_batch_size: 10000
@@ -34,7 +36,7 @@ spec:
 
     exporters:
       otlphttp/metoro:
-        endpoint: {{ $exporterEndpoint | quote }}
+        metrics_endpoint: {{ $exporterMetricsEndpoint | quote }}
 
     service:
       pipelines:

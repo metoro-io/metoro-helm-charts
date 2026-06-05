@@ -190,6 +190,7 @@ serviceMonitorScraping:
   collector:
     mode: statefulset
     replicas: 1
+    upgradeStrategy: automatic
 
   targetAllocator:
     enabled: true
@@ -200,11 +201,16 @@ serviceMonitorScraping:
       namespaceSelector: {}
 
 opentelemetry-operator:
+  crds:
+    create: false
   admissionWebhooks:
+    create: false
     certManager:
       enabled: false
     autoGenerateCert:
-      enabled: true
+      enabled: false
   manager:
+    env:
+      ENABLE_WEBHOOKS: "false"
     collectorImage:
       repository: otel/opentelemetry-collector-k8s
