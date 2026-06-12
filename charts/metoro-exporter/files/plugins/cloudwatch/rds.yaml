@@ -1,0 +1,27 @@
+# Curated CloudWatch metric set for Amazon RDS.
+type: AWS/RDS
+metrics:
+  - name: CPUUtilization
+    statistics: [Average, Maximum]
+  - name: DatabaseConnections
+    statistics: [Average, Maximum]
+  - name: FreeableMemory
+    statistics: [Average, Minimum]
+  - name: FreeStorageSpace
+    statistics: [Average, Minimum]
+  - name: ReadLatency
+    statistics: [Average, Maximum]
+  - name: WriteLatency
+    statistics: [Average, Maximum]
+  - name: ReadIOPS
+    statistics: [Average]
+  - name: WriteIOPS
+    statistics: [Average]
+  - name: DiskQueueDepth
+    statistics: [Average]
+  - name: ReplicaLag
+    statistics: [Average, Maximum]
+  - name: BurstBalance
+    statistics: [Minimum]
+  - name: SwapUsage
+    statistics: [Average]

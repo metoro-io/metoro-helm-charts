@@ -181,6 +181,95 @@ redisCluster:
     persistence:
       enabled: true
 
+# Plugins scrape metrics from sources outside the cluster and ship them to Metoro
+# through the in-cluster exporter. Each plugin runs as its own single-replica
+# deployment containing the scraper plus a small OpenTelemetry collector sidecar.
+plugins:
+  # Scrapes AWS CloudWatch metrics using YACE (yet-another-cloudwatch-exporter).
+  # Resources are discovered via the AWS tagging API, so the IAM role/user needs:
+  #   cloudwatch:ListMetrics, cloudwatch:GetMetricData, tag:GetResources
+  # Note: CloudWatch charges ~$0.01 per 1,000 metrics requested via GetMetricData.
+  # The defaults below (5 minute period, explicit service opt-in) are chosen to keep
+  # that cost low. Use searchTags to narrow discovery to the resources you care about.
+  cloudwatch:
+    enabled: false
+    aws:
+      # Region used for STS authentication.
+      stsRegion: "us-east-1"
+      # Regions to discover and scrape resources in. Can be overridden per service.
+      regions: ["us-east-1"]
+      auth:
+        # IAM role ARN for IRSA on EKS. Rendered as the eks.amazonaws.com/role-arn
+        # annotation on the plugin's service account. Leave empty if credentials come
+        # from elsewhere (EKS Pod Identity, node instance profile, or existingSecret).
+        roleArn: ""
+        # Name of an existing secret containing AWS_ACCESS_KEY_ID and
+        # AWS_SECRET_ACCESS_KEY keys, for clusters without IRSA.
+        existingSecret: ""
+    scrape:
+      # CloudWatch granularity to request, in seconds. Most AWS namespaces emit at
+      # 1 minute resolution but 5 minutes keeps GetMetricData costs low.
+      period: 300
+      # How far back to offset requests, in seconds. CloudWatch datapoints take a few
+      # minutes to settle; querying too close to now returns partial data.
+      delay: 300
+      # Export 0 instead of NaN when a resource reports no data for an interval.
+      nilToZero: true
+    # Services to scrape using Metoro's curated metric sets.
+    # Supported names: rds, sqs, lambda, alb, elasticache, dynamodb.
+    services: []
+    #  - name: rds
+    #    regions: ["us-east-1"]            # optional, defaults to aws.regions
+    #    searchTags:                       # optional, narrows discovery by resource tags
+    #      - key: "environment"
+    #        value: "production"           # value is a regex
+    #    period: 60                        # optional, overrides scrape.period. The plugin polls
+    #                                      # CloudWatch at the smallest period across all services,
+    #                                      # so a low value here raises API cost for the whole plugin.
+    #    metrics:                          # optional, replaces the curated metric set
+    #      - name: "CPUUtilization"
+    #        statistics: ["Average"]
+    # Escape hatch: a verbatim YACE configuration (https://github.com/prometheus-community/yet-another-cloudwatch-exporter).
+    # When set, `aws.stsRegion`, `scrape` and `services` are ignored.
+    customConfig: ""
+    serviceAccount:
+      name: "metoro-plugin-cloudwatch"
+      # Extra annotations for the service account, merged with the IRSA annotation.
+      annotations: {}
+    image:
+      repository: quay.io/prometheuscommunity/yet-another-cloudwatch-exporter
+      tag: "v0.65.0"
+      pullPolicy: "IfNotPresent"
+      imagePullSecrets: []
+    resources:
+      limits:
+        cpu: "500m"
+        memory: "512Mi"
+      requests:
+        cpu: "100m"
+        memory: "128Mi"
+    sidecar:
+      image:
+        repository: quay.io/metoro/opentelemetry-collector
+        tag: "stable"
+        pullPolicy: "Always"
+      resources:
+        limits:
+          cpu: "250m"
+          memory: "256Mi"
+        requests:
+          cpu: "50m"
+          memory: "64Mi"
+    scheduling:
+      nodeSelector: {}
+      affinity: {}
+      tolerations: []
+      priorityClassName: ""
+      # How long the pod tolerates a NotReady/unreachable node before being evicted
+      # and rescheduled. The plugin runs as a single replica, so this bounds the
+      # metric gap after a node failure. The Kubernetes default is 300 seconds.
+      nodeFailureEvictionSeconds: 60
+
 serviceMonitorScraping:
   enabled: false
 
