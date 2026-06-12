@@ -192,6 +192,9 @@ plugins:
   # The defaults below (5 minute period, explicit service opt-in) are chosen to keep
   # that cost low. Use searchTags to narrow discovery to the resources you care about.
   cloudwatch:
+    # ALPHA: this plugin is under active development and is not yet generally
+    # available. Configuration may change between chart versions without notice.
+    # Do not enable unless the Metoro team has asked you to.
     enabled: false
     aws:
       # Region used for STS authentication.
