@@ -8,12 +8,13 @@
 {{- $sidecarConfigMapName := include "metoro.plugins.cloudwatch.sidecarConfigMapName" . -}}
 {{- $yaceConfig := include "metoro.plugins.cloudwatch.yaceConfig" . -}}
 {{- $exporterMetricsEndpoint := printf "http://%s.%s.svc.cluster.local:%d/api/v1/custom/otel/metrics" .Values.exporter.services.metoroExporter.name .Release.Namespace (.Values.exporter.services.metoroExporter.port | int) -}}
-{{- /* Poll and scrape at the smallest period across services so that a per-service
-period override actually increases export resolution rather than dropping datapoints. */ -}}
-{{- $scrapeInterval := int $cw.scrape.period -}}
+{{- /* YACE polls CloudWatch at the smallest period across services so that a
+per-service period override actually increases resolution rather than dropping
+datapoints. The sidecar scrapes YACE's cached values on its own faster cadence. */ -}}
+{{- $yacePollInterval := int $cw.scrape.period -}}
 {{- range $svc := $cw.services -}}
 {{- if $svc.period -}}
-{{- $scrapeInterval = min $scrapeInterval (int $svc.period) -}}
+{{- $yacePollInterval = min $yacePollInterval (int $svc.period) -}}
 {{- end -}}
 {{- end -}}
 apiVersion: v1
@@ -43,7 +44,7 @@ data:
         config:
           scrape_configs:
             - job_name: metoro-plugin-cloudwatch
-              scrape_interval: {{ $scrapeInterval }}s
+              scrape_interval: {{ $cw.scrape.interval }}s
               static_configs:
                 - targets: ["127.0.0.1:5000"]
     processors:
@@ -105,7 +106,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/config: {{ printf "%s%s%d" $yaceConfig $exporterMetricsEndpoint $scrapeInterval | sha256sum }}
+        checksum/config: {{ printf "%s%s%d%d" $yaceConfig $exporterMetricsEndpoint $yacePollInterval (int $cw.scrape.interval) | sha256sum }}
       labels:
         {{- include "metoro.plugins.commonLabels" . | nindent 8 }}
         {{- include "metoro.plugins.cloudwatch.selectorLabels" . | nindent 8 }}
@@ -145,7 +146,7 @@ spec:
           args:
             - -config.file=/config/config.yml
             - -listen-address=:5000
-            - -scraping-interval={{ $scrapeInterval }}
+            - -scraping-interval={{ $yacePollInterval }}
           {{- with $cw.aws.auth.existingSecret }}
           envFrom:
             - secretRef:

@@ -207,6 +207,11 @@ plugins:
         # AWS_SECRET_ACCESS_KEY keys, for clusters without IRSA.
         existingSecret: ""
     scrape:
+      # How often the otel sidecar scrapes YACE and exports samples, in seconds.
+      # YACE only refreshes from CloudWatch every `period` seconds, so values repeat
+      # between refreshes, but a steady 30s cadence keeps plugin metrics behaving
+      # like every other metric in Metoro. Does not affect CloudWatch API cost.
+      interval: 30
       # CloudWatch granularity to request, in seconds. Most AWS namespaces emit at
       # 1 minute resolution but 5 minutes keeps GetMetricData costs low.
       period: 300
