@@ -3,6 +3,26 @@ entries:
   metoro-exporter:
   - apiVersion: v2
     appVersion: 0.2303.0
+    created: "2026-06-21T12:31:06.39961984Z"
+    dependencies:
+    - condition: redis.enabled
+      name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: 20.1.6
+    - alias: redisCluster
+      condition: redisCluster.enabled
+      name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: 20.1.6
+    description: A helm chart for the Metoro Exporter
+    digest: f4afe45e58da86572aed966b915bd589d1b8b11f46f61eee94b2c3584a1d5077
+    name: metoro-exporter
+    type: application
+    urls:
+    - https://github.com/metoro-io/metoro-helm-charts/releases/download/metoro-exporter-0.473.0/metoro-exporter-0.473.0.tgz
+    version: 0.473.0
+  - apiVersion: v2
+    appVersion: 0.2303.0
     created: "2026-06-05T18:55:06.194260187Z"
     dependencies:
     - condition: redis.enabled
@@ -906,4 +926,4 @@ entries:
     urls:
     - https://github.com/metoro-io/metoro-helm-charts/releases/download/metoro-exporter-0.62.0/metoro-exporter-0.62.0.tgz
     version: 0.62.0
-generated: "2026-06-05T18:55:06.19442792Z"
+generated: "2026-06-21T12:31:06.39987214Z"
