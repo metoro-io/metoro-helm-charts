@@ -182,7 +182,7 @@ redisCluster:
       enabled: true
 
 serviceMonitorScraping:
-  enabled: false
+  enabled: true
 
   collector:
     mode: statefulset
