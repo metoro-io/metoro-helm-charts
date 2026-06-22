@@ -29,17 +29,17 @@ interesting values.
 
 #### ServiceMonitor and PodMonitor scraping
 
-The exporter chart can optionally deploy a pinned OpenTelemetry Collector and
-Target Allocator directly. The Target Allocator discovers Prometheus Operator
+The exporter chart deploys a pinned OpenTelemetry Collector and Target
+Allocator by default. The Target Allocator discovers Prometheus Operator
 `ServiceMonitor` and `PodMonitor` resources, the collector scrapes those
 targets, and metrics are forwarded to the in-cluster `metoro-exporter` service
 at `/api/v1/custom/otel/metrics`.
 
-Enable scraping with:
+Disable scraping with:
 
 ```yaml
 serviceMonitorScraping:
-  enabled: true
+  enabled: false
 ```
 
 This path does not install the OpenTelemetry Operator, OpenTelemetry CRDs, or
@@ -52,7 +52,6 @@ objects:
 
 ```yaml
 serviceMonitorScraping:
-  enabled: true
   collector:
     replicas: 2
   targetAllocator:
