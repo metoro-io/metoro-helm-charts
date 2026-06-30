@@ -86,10 +86,13 @@ spec:
                       match:
                         type: object
                         description: Optional telemetry attribute selector that narrows the inherited cluster scope.
+                        required:
+                          - matchExpressions
                         properties:
                           matchExpressions:
                             type: array
                             description: Attribute match expressions. Expressions are ANDed within a rule.
+                            minItems: 1
                             maxItems: 64
                             items:
                               type: object
