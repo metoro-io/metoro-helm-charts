@@ -18,7 +18,7 @@ exporter:
       apiServerUrl: "https://us-east.metoro.io/api/v1/exporter"
       shouldDropMetoroData: "true"
     optional:
-      # Comma-separated selectors for Kubernetes resources to watch (for example: "pod,service,deployment,ingress").
+      # Comma-separated selectors for Kubernetes resources to watch (for example: "pod,service,deployment,ingress,metoro-namespace-telemetry-rule,metoro-namespace-resource-rule").
       # Leave empty to watch all exporter-supported resources.
       k8sResources: ""
     userDefined: {}
