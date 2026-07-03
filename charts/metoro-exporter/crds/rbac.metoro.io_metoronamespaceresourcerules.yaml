@@ -77,17 +77,23 @@ spec:
                         type: array
                         description: Metoro resource types this grant covers.
                         minItems: 1
-                        maxItems: 7
+                        maxItems: 13
                         x-kubernetes-list-type: set
                         items:
                           type: string
                           enum:
+                            - billing
                             - dashboards
                             - alerts
-                            - webhooks
-                            - ingestionFilters
-                            - redactionRules
-                            - aiWorkflowSettings
+                            - environments
+                            - logFilters
+                            - traceRedacts
+                            - integrations
+                            - workflows
+                            - accessManagement
+                            - investigations
+                            - apiKeys
+                            - memories
                             - "*"
                       verbs:
                         type: array
