@@ -34,6 +34,13 @@ data:
       batch:
         send_batch_size: 10000
         timeout: 10s
+      transform/prometheus_label_compat:
+        error_mode: ignore
+        metric_statements:
+          - context: datapoint
+            statements:
+              - set(attributes["job"], resource.attributes["service.name"]) where resource.attributes["service.name"] != nil
+              - set(attributes["instance"], resource.attributes["service.instance.id"]) where resource.attributes["service.instance.id"] != nil
 
     exporters:
       otlphttp/metoro:
@@ -43,7 +50,7 @@ data:
       pipelines:
         metrics:
           receivers: [prometheus]
-          processors: [batch]
+          processors: [transform/prometheus_label_compat, batch]
           exporters: [otlphttp/metoro]
 ---
 apiVersion: v1
