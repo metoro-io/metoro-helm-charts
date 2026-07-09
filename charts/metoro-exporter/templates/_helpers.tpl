@@ -157,3 +157,30 @@ matchexpressions:
 {}
 {{- end -}}
 {{- end }}
+
+{{/*
+Render a templated CRD when it is missing or already owned by this Helm release.
+This lets upgrades install newly introduced Metoro CRDs without failing on CRDs
+that are already owned by another release.
+*/}}
+{{- define "metoro.shouldRenderCRD" -}}
+{{- $root := .root -}}
+{{- $name := .name -}}
+{{- $existing := lookup "apiextensions.k8s.io/v1" "CustomResourceDefinition" "" $name -}}
+{{- if not $existing -}}
+true
+{{- else -}}
+{{- $annotations := $existing.metadata.annotations | default dict -}}
+{{- if and (eq (get $annotations "meta.helm.sh/release-name") $root.Release.Name) (eq (get $annotations "meta.helm.sh/release-namespace") $root.Release.Namespace) -}}
+true
+{{- end -}}
+{{- end -}}
+{{- end }}
+
+{{/*
+Changing the set of CRD-backed informer resources must roll existing exporter
+pods so MetadataWatcher.Init runs again after CRDs are installed or upgraded.
+*/}}
+{{- define "metoro.exporter.crdWatcherChecksum" -}}
+{{- toJson (dict "apiGroup" "observability.metoro.io" "version" "v1alpha1" "resources" (list "metoroalerts" "metorodashboards" "metorowebhooks")) -}}
+{{- end }}

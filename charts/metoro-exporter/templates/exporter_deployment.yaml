@@ -14,8 +14,9 @@ spec:
       {{- toYaml .Values.exporter.metadata.selectorLabels | nindent 6 }}
   template:
     metadata:
-      {{- with .Values.exporter.metadata.podAnnotations }}
       annotations:
+        checksum/metoro-crd-watchers: {{ include "metoro.exporter.crdWatcherChecksum" . | sha256sum | quote }}
+      {{- with .Values.exporter.metadata.podAnnotations }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
