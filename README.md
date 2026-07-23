@@ -7,6 +7,32 @@ This repository contains the Helm Charts for Metoro.
 Metoro exporter is a collection of components that collects traces, logs, metrics and profiling data from a Kubernetes
 cluster and exports them back to metoro.
 
+### Upgrading
+
+Update the chart repository and upgrade an existing exporter release with:
+
+```bash
+helm repo update metoro-exporter
+
+helm upgrade metoro-exporter metoro-exporter/metoro-exporter \
+  --namespace metoro \
+  --reuse-values \
+  --wait \
+  --timeout 10m
+```
+
+Use `--version <chart-version>` to upgrade to a specific chart version.
+
+The `--reuse-values` flag preserves the values stored with the existing Helm
+release, including the exporter bearer token, ExternalSecret configuration,
+resource settings, and scheduling configuration. If the release or namespace
+has a different name, replace `metoro-exporter` or `metoro` in the command.
+
+Values changed directly on live Kubernetes resources are not stored by Helm and
+may be overwritten during an upgrade. Configure the exporter token through Helm
+values or an ExternalSecret rather than editing `Secret/exporter-secret`
+directly.
+
 ### Interesting values
 
 All of the values can be seen in the `values.yaml` file. However it is quite large so here are some of the more
