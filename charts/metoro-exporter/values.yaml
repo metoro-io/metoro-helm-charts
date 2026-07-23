@@ -5,6 +5,7 @@ exporter:
     podAnnotations: {}
     selectorLabels:
       app.kubernetes.io/name: "metoro-exporter"
+  # Used only when the horizontal pod autoscaler is disabled.
   replicas: 2
   updateStrategy:
     type: "RollingUpdate"
