@@ -6,7 +6,9 @@ metadata:
   labels:
     {{- toYaml .Values.exporter.metadata.selectorLabels | nindent 4 }}
 spec:
+  {{- if not .Values.exporter.autoscaling.horizontalPodAutoscaler.enabled }}
   replicas: {{ .Values.exporter.replicas }}
+  {{- end }}
   strategy:
     {{- toYaml .Values.exporter.updateStrategy | nindent 4 }}
   selector:
