@@ -1,0 +1,23 @@
+# Curated CloudWatch metric set for AWS Application Load Balancer.
+type: AWS/ApplicationELB
+metrics:
+  - name: RequestCount
+    statistics: [Sum]
+  - name: HTTPCode_Target_2XX_Count
+    statistics: [Sum]
+  - name: HTTPCode_Target_4XX_Count
+    statistics: [Sum]
+  - name: HTTPCode_Target_5XX_Count
+    statistics: [Sum]
+  - name: HTTPCode_ELB_5XX_Count
+    statistics: [Sum]
+  - name: TargetResponseTime
+    statistics: [Average, p99]
+  - name: HealthyHostCount
+    statistics: [Minimum]
+  - name: UnHealthyHostCount
+    statistics: [Maximum]
+  - name: ActiveConnectionCount
+    statistics: [Sum]
+  - name: TargetConnectionErrorCount
+    statistics: [Sum]

@@ -136,6 +136,88 @@ app.kubernetes.io/component: opentelemetry-targetallocator
 {{- end }}
 
 {{/*
+Common non-selector labels for plugin resources.
+*/}}
+{{- define "metoro.plugins.commonLabels" -}}
+helm.sh/chart: {{ include "metoro.chart" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
+
+{{/*
+Create the name of the CloudWatch plugin.
+*/}}
+{{- define "metoro.plugins.cloudwatch.name" -}}
+{{- printf "%s-plugin-cloudwatch" (include "metoro.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
+Create the name of the CloudWatch plugin scraper (YACE) config map.
+*/}}
+{{- define "metoro.plugins.cloudwatch.configMapName" -}}
+{{- printf "%s-config" (include "metoro.plugins.cloudwatch.name" .) | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
+Create the name of the CloudWatch plugin collector sidecar config map.
+*/}}
+{{- define "metoro.plugins.cloudwatch.sidecarConfigMapName" -}}
+{{- printf "%s-sidecar-config" (include "metoro.plugins.cloudwatch.name" .) | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
+Create selector labels used by the CloudWatch plugin.
+*/}}
+{{- define "metoro.plugins.cloudwatch.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "metoro.plugins.cloudwatch.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/component: plugin-cloudwatch
+{{- end }}
+
+{{/*
+Render the YACE configuration for the CloudWatch plugin from the curated metric
+sets in files/plugins/cloudwatch and the user's plugins.cloudwatch.services values.
+*/}}
+{{- define "metoro.plugins.cloudwatch.yaceConfig" -}}
+{{- $cw := .Values.plugins.cloudwatch -}}
+{{- if $cw.customConfig -}}
+{{- $cw.customConfig -}}
+{{- else -}}
+{{- $jobs := list -}}
+{{- range $svc := $cw.services -}}
+{{- $path := printf "files/plugins/cloudwatch/%s.yaml" $svc.name -}}
+{{- $curatedRaw := $.Files.Get $path -}}
+{{- if not $curatedRaw -}}
+{{- fail (printf "plugins.cloudwatch: unsupported service %q. Supported services: rds, sqs, lambda, alb, elasticache, dynamodb. Use plugins.cloudwatch.customConfig for anything else." $svc.name) -}}
+{{- end -}}
+{{- $curated := fromYaml $curatedRaw -}}
+{{- $period := int ($svc.period | default $cw.scrape.period) -}}
+{{- $job := dict
+      "type" $curated.type
+      "regions" ($svc.regions | default $cw.aws.regions)
+      "period" $period
+      "length" $period
+      "delay" (int $cw.scrape.delay)
+      "nilToZero" $cw.scrape.nilToZero
+      "metrics" ($svc.metrics | default $curated.metrics)
+-}}
+{{- with $svc.searchTags -}}
+{{- $_ := set $job "searchTags" . -}}
+{{- end -}}
+{{- $jobs = append $jobs $job -}}
+{{- end -}}
+{{- $config := dict
+      "apiVersion" "v1alpha1"
+      "sts-region" $cw.aws.stsRegion
+      "discovery" (dict "jobs" $jobs)
+-}}
+{{- toYaml $config -}}
+{{- end -}}
+{{- end }}
+
+{{/*
 Render a Kubernetes LabelSelector for the Target Allocator config. The pinned
 Target Allocator version unmarshals LabelSelector fields using lower-case YAML
 field names.

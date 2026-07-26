@@ -1,0 +1,21 @@
+# Curated CloudWatch metric set for Amazon SQS.
+type: AWS/SQS
+metrics:
+  - name: ApproximateNumberOfMessagesVisible
+    statistics: [Average, Maximum]
+  - name: ApproximateNumberOfMessagesNotVisible
+    statistics: [Average]
+  - name: ApproximateNumberOfMessagesDelayed
+    statistics: [Average]
+  - name: ApproximateAgeOfOldestMessage
+    statistics: [Average, Maximum]
+  - name: NumberOfMessagesSent
+    statistics: [Sum]
+  - name: NumberOfMessagesReceived
+    statistics: [Sum]
+  - name: NumberOfMessagesDeleted
+    statistics: [Sum]
+  - name: NumberOfEmptyReceives
+    statistics: [Sum]
+  - name: SentMessageSize
+    statistics: [Average, Maximum]
