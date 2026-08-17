@@ -1,0 +1,120 @@
+{{- if eq (include "metoro.shouldRenderCRD" (dict "root" . "name" "metoroclusteringestionrules.observability.metoro.io")) "true" }}
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+  annotations:
+    helm.sh/resource-policy: keep
+    meta.helm.sh/release-name: {{ .Release.Name | quote }}
+    meta.helm.sh/release-namespace: {{ .Release.Namespace | quote }}
+  name: metoroclusteringestionrules.observability.metoro.io
+spec:
+  group: observability.metoro.io
+  names:
+    kind: MetoroClusterIngestionRule
+    listKind: MetoroClusterIngestionRuleList
+    plural: metoroclusteringestionrules
+    singular: metoroclusteringestionrule
+    shortNames:
+      - mcingrule
+      - mcingrules
+    categories:
+      - metoro
+      - metoro-observability
+  scope: Cluster
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
+      additionalPrinterColumns:
+        - name: Signal
+          type: string
+          jsonPath: .spec.signal
+        - name: Action
+          type: string
+          jsonPath: .spec.action
+        - name: Age
+          type: date
+          jsonPath: .metadata.creationTimestamp
+      schema:
+        openAPIV3Schema:
+          type: object
+          description: MetoroClusterIngestionRule drops matching telemetry before it leaves the cluster where the rule is created. Rules are drop-only and scoped to that cluster; there is no cross-cluster field.
+          required:
+            - spec
+          properties:
+            apiVersion:
+              type: string
+            kind:
+              type: string
+            metadata:
+              type: object
+            spec:
+              type: object
+              required:
+                - signal
+                - match
+              x-kubernetes-validations:
+                - rule: "self.signal == 'logs' || !has(self.match) || !has(self.match.bodyRegexes) || size(self.match.bodyRegexes) == 0"
+                  message: bodyRegexes are only supported when signal is logs.
+              properties:
+                signal:
+                  type: string
+                  description: Telemetry signal this rule applies to.
+                  enum:
+                    - logs
+                    - traces
+                action:
+                  type: string
+                  description: What to do with matching telemetry. Only Drop is supported.
+                  default: Drop
+                  enum:
+                    - Drop
+                match:
+                  type: object
+                  description: Selects the telemetry to drop. A record is dropped when it matches all attribute expressions, or when its body matches any of bodyRegexes.
+                  x-kubernetes-validations:
+                    - rule: "(has(self.attributes) && size(self.attributes) > 0) || (has(self.bodyRegexes) && size(self.bodyRegexes) > 0)"
+                      message: match must specify at least one of attributes or bodyRegexes.
+                  properties:
+                    attributes:
+                      type: array
+                      description: Attribute match expressions. Expressions are ANDed; values within an expression are ORed.
+                      maxItems: 64
+                      items:
+                        type: object
+                        required:
+                          - key
+                          - operator
+                          - values
+                        properties:
+                          key:
+                            type: string
+                            description: Telemetry attribute key, such as service.name, namespace, or a custom attribute.
+                            minLength: 1
+                            maxLength: 256
+                          operator:
+                            type: string
+                            enum:
+                              - Equals
+                              - Regex
+                          values:
+                            type: array
+                            description: Values to match against. Regex values use RE2 syntax.
+                            minItems: 1
+                            maxItems: 256
+                            x-kubernetes-list-type: set
+                            items:
+                              type: string
+                              minLength: 1
+                              maxLength: 1024
+                    bodyRegexes:
+                      type: array
+                      description: RE2 regexes matched against the log body. Only valid when signal is logs.
+                      maxItems: 64
+                      items:
+                        type: string
+                        minLength: 1
+                        maxLength: 1024
+{{- end }}
