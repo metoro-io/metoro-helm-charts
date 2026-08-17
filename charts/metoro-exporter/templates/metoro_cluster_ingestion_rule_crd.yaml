@@ -73,15 +73,18 @@ spec:
                     - Drop
                 match:
                   type: object
-                  description: Selects the telemetry to drop. A record is dropped when it matches all attribute expressions, or when its body matches any of bodyRegexes.
+                  description: Selects the telemetry to drop. A record is dropped when it matches all attribute expressions and, when bodyRegexes is set, its body matches at least one of them. Create separate rules to drop on independent conditions.
                   x-kubernetes-validations:
                     - rule: "(has(self.attributes) && size(self.attributes) > 0) || (has(self.bodyRegexes) && size(self.bodyRegexes) > 0)"
                       message: match must specify at least one of attributes or bodyRegexes.
                   properties:
                     attributes:
                       type: array
-                      description: Attribute match expressions. Expressions are ANDed; values within an expression are ORed.
+                      description: Attribute match expressions. Expressions are ANDed; values within an expression are ORed. Keys must be unique.
                       maxItems: 64
+                      x-kubernetes-list-type: map
+                      x-kubernetes-list-map-keys:
+                        - key
                       items:
                         type: object
                         required:
