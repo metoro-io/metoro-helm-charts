@@ -182,5 +182,5 @@ Changing the set of CRD-backed informer resources must roll existing exporter
 pods so MetadataWatcher.Init runs again after CRDs are installed or upgraded.
 */}}
 {{- define "metoro.exporter.crdWatcherChecksum" -}}
-{{- toJson (dict "apiGroup" "observability.metoro.io" "version" "v1alpha1" "resources" (list "metoroalerts" "metorodashboards" "metorowebhooks")) -}}
+{{- toJson (dict "apiGroup" "observability.metoro.io" "version" "v1alpha1" "resources" (list "metoroalerts" "metorodashboards" "metorowebhooks" "metoroclusteringestionrules")) -}}
 {{- end }}
