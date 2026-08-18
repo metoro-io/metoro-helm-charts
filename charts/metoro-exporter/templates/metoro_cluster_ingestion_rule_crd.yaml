@@ -28,19 +28,19 @@ spec:
       served: true
       storage: true
       additionalPrinterColumns:
-        - name: Signal
+        - name: Signals
           type: string
-          jsonPath: .spec.signal
-        - name: Action
+          jsonPath: .spec.rules[*].signals
+        - name: Actions
           type: string
-          jsonPath: .spec.action
+          jsonPath: .spec.rules[*].action
         - name: Age
           type: date
           jsonPath: .metadata.creationTimestamp
       schema:
         openAPIV3Schema:
           type: object
-          description: MetoroClusterIngestionRule drops matching telemetry before it leaves the cluster where the rule is created. Rules are drop-only and scoped to that cluster; there is no cross-cluster field.
+          description: MetoroClusterIngestionRule excludes matching telemetry from ingestion before it leaves the cluster where the rule is created. Rules are exclude-only and scoped to that cluster; there is no cross-cluster field.
           required:
             - spec
           properties:
@@ -53,71 +53,77 @@ spec:
             spec:
               type: object
               required:
-                - signal
-                - match
-              x-kubernetes-validations:
-                - rule: "self.signal == 'logs' || !has(self.match) || !has(self.match.bodyRegexes) || size(self.match.bodyRegexes) == 0"
-                  message: bodyRegexes are only supported when signal is logs.
+                - rules
               properties:
-                signal:
-                  type: string
-                  description: Telemetry signal this rule applies to.
-                  enum:
-                    - logs
-                    - traces
-                action:
-                  type: string
-                  description: What to do with matching telemetry. Only Drop is supported.
-                  default: Drop
-                  enum:
-                    - Drop
-                match:
-                  type: object
-                  description: Selects the telemetry to drop. A record is dropped when it matches all attribute expressions and, when bodyRegexes is set, its body matches at least one of them. Create separate rules to drop on independent conditions.
-                  x-kubernetes-validations:
-                    - rule: "(has(self.attributes) && size(self.attributes) > 0) || (has(self.bodyRegexes) && size(self.bodyRegexes) > 0)"
-                      message: match must specify at least one of attributes or bodyRegexes.
-                  properties:
-                    attributes:
-                      type: array
-                      description: Attribute match expressions. Expressions are ANDed; values within an expression are ORed. Keys must be unique.
-                      maxItems: 64
-                      x-kubernetes-list-type: map
-                      x-kubernetes-list-map-keys:
-                        - key
-                      items:
-                        type: object
-                        required:
-                          - key
-                          - operator
-                          - values
-                        properties:
-                          key:
-                            type: string
-                            description: Telemetry attribute key, such as service.name, namespace, or a custom attribute.
-                            minLength: 1
-                            maxLength: 256
-                          operator:
-                            type: string
-                            enum:
-                              - Equals
-                              - Regex
-                          values:
-                            type: array
-                            description: Values to match against. Regex values use RE2 syntax.
-                            minItems: 1
-                            maxItems: 256
-                            x-kubernetes-list-type: set
-                            items:
-                              type: string
-                              minLength: 1
-                              maxLength: 1024
-                    bodyRegexes:
-                      type: array
-                      description: RE2 regexes matched against the log body. Only valid when signal is logs.
-                      maxItems: 64
-                      items:
+                rules:
+                  type: array
+                  description: Exclusion rules. Rules are independent of each other — a record is excluded when any single rule matches it.
+                  minItems: 1
+                  maxItems: 256
+                  items:
+                    type: object
+                    required:
+                      - signals
+                      - action
+                    x-kubernetes-validations:
+                      - rule: "!has(self.match) || self.match.matchExpressions.all(e, e.key != 'message') || (self.signals.size() == 1 && self.signals[0] == 'logs')"
+                        message: the message key matches the log body and is only valid when the rule's signals are exactly [logs].
+                    properties:
+                      signals:
+                        type: array
+                        description: Telemetry signals this rule applies to.
+                        minItems: 1
+                        maxItems: 2
+                        x-kubernetes-list-type: set
+                        items:
+                          type: string
+                          enum:
+                            - logs
+                            - traces
+                      action:
                         type: string
-                        minLength: 1
-                        maxLength: 1024
+                        description: What to do with matching telemetry. Only Exclude is supported.
+                        enum:
+                          - Exclude
+                      match:
+                        type: object
+                        description: Selects the telemetry to exclude. A record matches when all match expressions match it. Omit match to exclude everything for the rule's signals in this cluster.
+                        required:
+                          - matchExpressions
+                        properties:
+                          matchExpressions:
+                            type: array
+                            description: Attribute match expressions. Expressions are ANDed within a rule; values within an expression are ORed. Keys must be unique within a rule.
+                            minItems: 1
+                            maxItems: 64
+                            x-kubernetes-list-type: map
+                            x-kubernetes-list-map-keys:
+                              - key
+                            items:
+                              type: object
+                              required:
+                                - key
+                                - operator
+                                - values
+                              properties:
+                                key:
+                                  type: string
+                                  description: Telemetry attribute key, such as service.name, namespace, log_level, statusCode, message (the log body), or a custom attribute.
+                                  minLength: 1
+                                  maxLength: 256
+                                operator:
+                                  type: string
+                                  enum:
+                                    - In
+                                    - RegexIn
+                                values:
+                                  type: array
+                                  description: Values to match against. RegexIn values use RE2 syntax.
+                                  minItems: 1
+                                  maxItems: 256
+                                  x-kubernetes-list-type: set
+                                  items:
+                                    type: string
+                                    minLength: 1
+                                    maxLength: 1024
 {{- end }}
