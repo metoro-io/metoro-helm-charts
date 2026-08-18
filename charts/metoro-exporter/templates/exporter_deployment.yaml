@@ -111,6 +111,8 @@ spec:
             - name: METORO_K8S_RESOURCES
               value: {{ .Values.exporter.envVars.optional.k8sResources | quote }}
             {{- end }}
+            - name: METORO_HONOR_FLUENTBIT_ANNOTATIONS
+              value: {{ .Values.exporter.envVars.optional.honorFluentBitAnnotations | quote }}
             {{- with .Values.exporter.envVars.userDefined }}
             {{- . | toYaml | nindent 12 }}
             {{- end }}

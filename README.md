@@ -26,6 +26,7 @@ interesting values.
 | `redis.master.tolerations`          | list | `[]`    | Tolerations for the exporter redis instance                                                                           |
 | `redis.master.affinity`             | map  | `{}`    | Affinity for the exporter redis instance                                                                              |
 | `exporter.envVars.optional.k8sResources` | string | `""` | Optional comma-separated Kubernetes resource selectors passed to `METORO_K8S_RESOURCES`; leave empty to watch all supported resources |
+| `exporter.envVars.optional.honorFluentBitAnnotations` | bool | `false` | Honor `fluentbit.io/exclude: "true"` Pod annotations to exclude whole-Pod logs |
 
 #### ServiceMonitor and PodMonitor scraping
 

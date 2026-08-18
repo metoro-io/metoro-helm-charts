@@ -22,6 +22,8 @@ exporter:
       # Comma-separated selectors for Kubernetes resources to watch (for example: "pod,service,deployment,ingress").
       # Leave empty to watch all exporter-supported resources.
       k8sResources: ""
+      # Honor fluentbit.io/exclude: "true" Pod annotations to exclude whole-Pod logs.
+      honorFluentBitAnnotations: false
     userDefined: {}
   image:
     tag: "v2-stable"
