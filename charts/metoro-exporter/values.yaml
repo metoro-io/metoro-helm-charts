@@ -27,6 +27,15 @@ exporter:
       # Honor fluentbit.io/exclude: "true" Pod annotations to exclude whole-Pod logs.
       honorFluentBitAnnotations: false
     userDefined: {}
+  # Opt-in: mirror the Kubernetes Secret keys that Metoro CRDs reference by
+  # name (e.g. MetoroWebhook secretKeyRefs) to Metoro's encrypted secret
+  # store, so credentials stay out of CRD manifests and resource history.
+  # Enabling this grants the exporter `get` (only) on Secrets cluster-wide;
+  # it reads just the referenced keys and never lists or watches Secrets.
+  # Note: anyone who can create a Metoro CRD with a secretKeyRef in a
+  # namespace can have the exporter read the named Secret in that namespace.
+  secretRefs:
+    enabled: false
   image:
     tag: "v2-stable"
     repository: quay.io/metoro/metoro-exporter

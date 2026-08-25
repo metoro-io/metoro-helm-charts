@@ -86,4 +86,50 @@ spec:
                 body:
                   type: string
                   description: Optional body template. Leave empty to use Metoro's default webhook payload.
+                headersFrom:
+                  type: object
+                  description: HTTP headers whose values come from a Secret in the same namespace as this webhook. A header must not appear in both headers and headersFrom, and Content-Type must be set inline.
+                  additionalProperties:
+                    type: object
+                    required:
+                      - secretKeyRef
+                    properties:
+                      secretKeyRef:
+                        type: object
+                        required:
+                          - name
+                          - key
+                        properties:
+                          name:
+                            type: string
+                            description: Name of the Secret in this webhook's namespace.
+                            minLength: 1
+                            maxLength: 253
+                          key:
+                            type: string
+                            description: Key within the Secret holding the header value.
+                            minLength: 1
+                            maxLength: 253
+                bodyFrom:
+                  type: object
+                  description: Body template sourced from a Secret in the same namespace. Mutually exclusive with body.
+                  required:
+                    - secretKeyRef
+                  properties:
+                    secretKeyRef:
+                      type: object
+                      required:
+                        - name
+                        - key
+                      properties:
+                        name:
+                          type: string
+                          description: Name of the Secret in this webhook's namespace.
+                          minLength: 1
+                          maxLength: 253
+                        key:
+                          type: string
+                          description: Key within the Secret holding the body template.
+                          minLength: 1
+                          maxLength: 253
 {{- end }}

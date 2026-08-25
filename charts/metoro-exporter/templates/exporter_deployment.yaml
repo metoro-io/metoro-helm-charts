@@ -111,6 +111,10 @@ spec:
             - name: METORO_K8S_RESOURCES
               value: {{ .Values.exporter.envVars.optional.k8sResources | quote }}
             {{- end }}
+            {{- if .Values.exporter.secretRefs.enabled }}
+            - name: METORO_SECRET_REFS_ENABLED
+              value: "true"
+            {{- end }}
             - name: METORO_HONOR_WORKLOAD_TELEMETRY_ANNOTATIONS
               value: {{ .Values.exporter.envVars.optional.honorMetoroPodAnnotations | quote }}
             - name: METORO_HONOR_FLUENTBIT_ANNOTATIONS
