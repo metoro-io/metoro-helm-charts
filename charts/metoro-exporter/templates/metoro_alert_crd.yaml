@@ -67,12 +67,13 @@ spec:
                   maxLength: 4096
                 tags:
                   type: array
-                  description: Tags applied to the synced Metoro alert.
+                  description: Tags applied to the synced Metoro alert. Tags are lowercased and whitespace-collapsed on sync; letters, numbers, spaces, hyphens and underscores are allowed.
                   maxItems: 20
                   items:
                     type: string
                     minLength: 1
                     maxLength: 64
+                    pattern: '^[\p{L}\p{N} _-]*[\p{L}\p{N}_-][\p{L}\p{N} _-]*$'
                 aiInvestigateOnFire:
                   type: boolean
                   description: Whether Metoro should automatically start an AI investigation when this alert fires.

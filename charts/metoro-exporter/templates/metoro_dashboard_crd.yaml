@@ -60,12 +60,13 @@ spec:
                   maxLength: 512
                 tags:
                   type: array
-                  description: Tags applied to the synced Metoro dashboard.
+                  description: Tags applied to the synced Metoro dashboard. Tags are lowercased and whitespace-collapsed on sync; letters, numbers, spaces, hyphens and underscores are allowed.
                   maxItems: 20
                   items:
                     type: string
                     minLength: 1
                     maxLength: 64
+                    pattern: '^[\p{L}\p{N} _-]*[\p{L}\p{N}_-][\p{L}\p{N} _-]*$'
                 settings:
                   type: object
                   description: Dashboard-wide settings
