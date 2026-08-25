@@ -58,6 +58,14 @@ spec:
                   description: Dashboard title for the synced Metoro dashboard. Defaults to metadata.name when omitted.
                   minLength: 1
                   maxLength: 512
+                tags:
+                  type: array
+                  description: Tags applied to the synced Metoro dashboard.
+                  maxItems: 64
+                  items:
+                    type: string
+                    minLength: 1
+                    maxLength: 128
                 settings:
                   type: object
                   description: Dashboard-wide settings
