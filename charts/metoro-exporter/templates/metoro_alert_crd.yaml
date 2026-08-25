@@ -151,6 +151,31 @@ spec:
                                     threshold:
                                       type: number
                                       format: double
+                                    unit:
+                                      type: string
+                                      description: >-
+                                        Optional UCUM unit the threshold is expressed in. When set,
+                                        the threshold is converted into the queried metric's own unit
+                                        before evaluation. If the unit is not compatible with the
+                                        metric's unit, the threshold is evaluated in the metric's base
+                                        unit and a warning is logged to the organization's log stream.
+                                      enum:
+                                        - ns
+                                        - us
+                                        - ms
+                                        - s
+                                        - min
+                                        - h
+                                        - d
+                                        - By
+                                        - kBy
+                                        - MBy
+                                        - GBy
+                                        - TBy
+                                        - KiBy
+                                        - MiBy
+                                        - GiBy
+                                        - TiBy
                               persistenceSettings:
                                 type: object
                                 required:
