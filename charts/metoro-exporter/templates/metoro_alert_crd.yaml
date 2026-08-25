@@ -65,6 +65,15 @@ spec:
                   type: string
                   description: Optional alert description.
                   maxLength: 4096
+                tags:
+                  type: array
+                  description: Tags applied to the synced Metoro alert. Tags are lowercased and whitespace-collapsed on sync; letters, numbers, spaces, hyphens and underscores are allowed.
+                  maxItems: 20
+                  items:
+                    type: string
+                    minLength: 1
+                    maxLength: 64
+                    pattern: '^[\p{L}\p{N} _-]*[\p{L}\p{N}_-][\p{L}\p{N} _-]*$'
                 aiInvestigateOnFire:
                   type: boolean
                   description: Whether Metoro should automatically start an AI investigation when this alert fires.
@@ -142,6 +151,31 @@ spec:
                                     threshold:
                                       type: number
                                       format: double
+                                    unit:
+                                      type: string
+                                      description: >-
+                                        Optional UCUM unit the threshold is expressed in. When set,
+                                        the threshold is converted into the queried metric's own unit
+                                        before evaluation. If the unit is not compatible with the
+                                        metric's unit, the threshold is evaluated in the metric's base
+                                        unit and a warning is logged to the organization's log stream.
+                                      enum:
+                                        - ns
+                                        - us
+                                        - ms
+                                        - s
+                                        - min
+                                        - h
+                                        - d
+                                        - By
+                                        - kBy
+                                        - MBy
+                                        - GBy
+                                        - TBy
+                                        - KiBy
+                                        - MiBy
+                                        - GiBy
+                                        - TiBy
                               persistenceSettings:
                                 type: object
                                 required:

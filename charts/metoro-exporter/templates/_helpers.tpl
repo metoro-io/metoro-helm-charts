@@ -178,9 +178,11 @@ true
 {{- end }}
 
 {{/*
-Changing the set of CRD-backed informer resources must roll existing exporter
-pods so MetadataWatcher.Init runs again after CRDs are installed or upgraded.
+Changing the set of CRD-backed informer resources, or a watched CRD's schema,
+must roll existing exporter pods so MetadataWatcher.Init runs again after CRDs
+are installed or upgraded. schemaRevision covers schema-only changes (an old
+pod watching through a pruned schema would silently drop new fields).
 */}}
 {{- define "metoro.exporter.crdWatcherChecksum" -}}
-{{- toJson (dict "apiGroup" "observability.metoro.io" "version" "v1alpha1" "resources" (list "metoroalerts" "metorodashboards" "metorowebhooks" "metoroclusteringestionrules") "schemaRevision" "2") -}}
+{{- toJson (dict "apiGroup" "observability.metoro.io" "version" "v1alpha1" "resources" (list "metoroalerts" "metorodashboards" "metorowebhooks" "metoroclusteringestionrules") "schemaRevision" "3") -}}
 {{- end }}
