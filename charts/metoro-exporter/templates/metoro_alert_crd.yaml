@@ -68,11 +68,11 @@ spec:
                 tags:
                   type: array
                   description: Tags applied to the synced Metoro alert.
-                  maxItems: 64
+                  maxItems: 20
                   items:
                     type: string
                     minLength: 1
-                    maxLength: 128
+                    maxLength: 64
                 aiInvestigateOnFire:
                   type: boolean
                   description: Whether Metoro should automatically start an AI investigation when this alert fires.
