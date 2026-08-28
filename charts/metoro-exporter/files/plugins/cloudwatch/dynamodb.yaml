@@ -1,0 +1,19 @@
+# Curated CloudWatch metric set for Amazon DynamoDB.
+type: AWS/DynamoDB
+metrics:
+  - name: ConsumedReadCapacityUnits
+    statistics: [Sum]
+  - name: ConsumedWriteCapacityUnits
+    statistics: [Sum]
+  - name: ThrottledRequests
+    statistics: [Sum]
+  - name: ReadThrottleEvents
+    statistics: [Sum]
+  - name: WriteThrottleEvents
+    statistics: [Sum]
+  - name: SuccessfulRequestLatency
+    statistics: [Average, Maximum]
+  - name: SystemErrors
+    statistics: [Sum]
+  - name: UserErrors
+    statistics: [Sum]

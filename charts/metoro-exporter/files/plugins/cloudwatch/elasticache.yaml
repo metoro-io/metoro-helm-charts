@@ -1,0 +1,23 @@
+# Curated CloudWatch metric set for Amazon ElastiCache.
+type: AWS/ElastiCache
+metrics:
+  - name: CPUUtilization
+    statistics: [Average, Maximum]
+  - name: EngineCPUUtilization
+    statistics: [Average, Maximum]
+  - name: DatabaseMemoryUsagePercentage
+    statistics: [Average, Maximum]
+  - name: CurrConnections
+    statistics: [Average, Maximum]
+  - name: Evictions
+    statistics: [Sum]
+  - name: CacheHits
+    statistics: [Sum]
+  - name: CacheMisses
+    statistics: [Sum]
+  - name: NetworkBytesIn
+    statistics: [Sum]
+  - name: NetworkBytesOut
+    statistics: [Sum]
+  - name: ReplicationLag
+    statistics: [Average, Maximum]

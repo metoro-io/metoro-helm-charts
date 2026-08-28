@@ -1,0 +1,17 @@
+# Curated CloudWatch metric set for AWS Lambda.
+type: AWS/Lambda
+metrics:
+  - name: Invocations
+    statistics: [Sum]
+  - name: Errors
+    statistics: [Sum]
+  - name: Throttles
+    statistics: [Sum]
+  - name: Duration
+    statistics: [Average, Maximum]
+  - name: ConcurrentExecutions
+    statistics: [Maximum]
+  - name: AsyncEventsReceived
+    statistics: [Sum]
+  - name: AsyncEventAge
+    statistics: [Average, Maximum]
