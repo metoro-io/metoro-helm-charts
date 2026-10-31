@@ -22,7 +22,6 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        app.kubernetes.io/name: exporter
         {{- include "metoro.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.exporter.image.imagePullSecrets }}
